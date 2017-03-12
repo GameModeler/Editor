@@ -9,6 +9,8 @@ namespace Editor.Models
         private string _name;
         private int _width;
         private int _height;
+        private int _tileWidth;
+        private int _tileHeight;
         private bool _isSaved;
 
         #endregion
@@ -55,6 +57,32 @@ namespace Editor.Models
         }
 
         /// <summary>
+        /// Tiles width.
+        /// </summary>
+        public int TileWidth
+        {
+            get { return _tileWidth; }
+            set
+            {
+                _tileWidth = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Tiles height.
+        /// </summary>
+        public int TileHeight
+        {
+            get { return _tileHeight; }
+            set
+            {
+                _tileHeight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// Map's saving state.
         /// </summary>
         public bool IsSaved
@@ -73,11 +101,13 @@ namespace Editor.Models
 
         #region Constructors
 
-        public WorldMap(string name, int width, int height)
+        public WorldMap(string name, int width, int height, int tileWidth, int tileHeight)
         {
             Name = name;
             Width = width;
             Height = height;
+            TileWidth = tileWidth;
+            TileHeight = tileHeight;
             Cells = new Cell [Width, Height];
 
             for (int i = 0; i < Cells.GetLength(0); i++)

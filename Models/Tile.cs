@@ -9,8 +9,6 @@ namespace Editor.Models
         #region Attributes
 
         private string _name;
-        private int _width;
-        private int _height;
         private BitmapImage _originalAsset;
         private CroppedBitmap _cropperAsset;
 
@@ -27,32 +25,6 @@ namespace Editor.Models
             set
             {
                 _name = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Tile's width.
-        /// </summary>
-        public int Width
-        {
-            get { return _width; }
-            set
-            {
-                _width = value;
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>
-        /// Tile's height.
-        /// </summary>
-        public int Height
-        {
-            get { return _height; }
-            set
-            {
-                _height = value;
                 OnPropertyChanged();
             }
         }
@@ -101,10 +73,8 @@ namespace Editor.Models
         public Tile(string name, int width, int height, BitmapImage sourceAsset)
         {
             Name = name;
-            Width = width;
-            Height = height;
             OriginalAsset = sourceAsset;
-            CroppedAsset = AssetUtils.GetCroppedBitmap(Width, Height, OriginalAsset);
+            CroppedAsset = AssetUtils.GetCroppedBitmap(width, height, OriginalAsset);
         }
 
         #endregion
