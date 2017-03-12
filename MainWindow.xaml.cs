@@ -26,7 +26,7 @@ namespace Editor
         {
             // Initialization
             InitializeComponent();
-            DataContext = new EditorViewModel();
+            EditorViewModel = new EditorViewModel();
 
             // Command Bindings
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, NewCommandExecuted));

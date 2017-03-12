@@ -59,6 +59,7 @@
     <Compile Include="Models\Tile.cs" />
     <Compile Include="Models\WorldMap.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Utilities\AssetUtils.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
     <Compile Include="Views\PropertiesWindow.xaml.cs">
       <DependentUpon>PropertiesWindow.xaml</DependentUpon>
