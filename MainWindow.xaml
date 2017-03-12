@@ -16,14 +16,14 @@
         <!-- Top Menu -->
         <Menu x:Name="Menu" DockPanel.Dock="Top" VerticalAlignment="Top"  HorizontalAlignment="Stretch">
             <MenuItem Header="File" Padding="5, 2">
-                <MenuItem Header="New" Command="ApplicationCommands.New" />
-                <MenuItem Header="Open" Command="ApplicationCommands.Open" />
-                <MenuItem Header="Save" Command="ApplicationCommands.Save" />
-                <MenuItem Header="Exit" Command="ApplicationCommands.Close" />
+                <MenuItem x:Name="NewCommand" Header="New" Command="ApplicationCommands.New" MouseEnter="NewCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
+                <MenuItem x:Name="OpenCommand" Header="Open" Command="ApplicationCommands.Open" MouseEnter="OpenCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
+                <MenuItem x:Name="SaveCommand" Header="Save" Command="ApplicationCommands.Save" MouseEnter="SaveCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
+                <MenuItem x:Name="ExitCommand" Header="Exit" Command="ApplicationCommands.Close" MouseEnter="ExitCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
             </MenuItem>
             <MenuItem Header="Assets" Padding="5, 2">
-                <MenuItem Header="Add assets" Command="ApplicationCommands.Find" />
-                <MenuItem Header="Remove selected assets" Command="ApplicationCommands.Delete" />
+                <MenuItem x:Name="AddAssetsCommand" Header="Add assets" Command="ApplicationCommands.Find" MouseEnter="AddAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
+                <MenuItem x:Name="RemoveAssetsCommand" Header="Remove selected assets" Command="ApplicationCommands.Delete" MouseEnter="RemoveAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
             </MenuItem>
         </Menu>
 

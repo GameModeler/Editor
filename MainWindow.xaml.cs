@@ -145,5 +145,50 @@ namespace Editor
         }
 
         #endregion
+
+        /// <summary>
+        /// Default status bat text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UIElement_MouseLeave(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Ready";
+        }
+
+        /// <summary>
+        /// Status bar text when hovering on File > New.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NewCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Create a new map";
+        }
+
+        private void OpenCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Open a saved map";
+        }
+
+        private void SaveCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Save the map";
+        }
+
+        private void ExitCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Quit the editor";
+        }
+
+        private void AddAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Browse for assets to be included in the map";
+        }
+
+        private void RemoveAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Remove the selected assets";
+        }
     }
 }
