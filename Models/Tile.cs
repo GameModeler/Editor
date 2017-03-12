@@ -1,5 +1,6 @@
 ﻿using System.Windows.Media.Imaging;
 using Editor.Models.Base;
+using Editor.Utilities;
 
 namespace Editor.Models
 {
@@ -103,7 +104,7 @@ namespace Editor.Models
             Width = width;
             Height = height;
             OriginalAsset = sourceAsset;
-            // Todo: Utility to generate the cropped version of the asset.
+            CroppedAsset = AssetUtils.GetCroppedBitmap(Width, Height, OriginalAsset);
         }
 
         #endregion
