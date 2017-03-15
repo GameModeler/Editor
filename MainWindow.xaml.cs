@@ -144,8 +144,6 @@ namespace Editor
             MessageBox.Show("Bye!");
         }
 
-        #endregion
-
         /// <summary>
         /// Default status bat text.
         /// </summary>
@@ -166,29 +164,56 @@ namespace Editor
             StatusBarTxt.Text = "Create a new map";
         }
 
+        /// <summary>
+        /// Status bar text when hovering on File > Open.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OpenCommand_MouseEnter(object sender, MouseEventArgs e)
         {
             StatusBarTxt.Text = "Open a saved map";
         }
 
+        /// <summary>
+        /// Status bar text when hovering on File > Save.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveCommand_MouseEnter(object sender, MouseEventArgs e)
         {
             StatusBarTxt.Text = "Save the map";
         }
 
+        /// <summary>
+        /// Status bar text when hovering on File > Exit.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ExitCommand_MouseEnter(object sender, MouseEventArgs e)
         {
             StatusBarTxt.Text = "Quit the editor";
         }
 
+        /// <summary>
+        /// Status bar text when hovering on Assets > Add assets.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
         {
             StatusBarTxt.Text = "Browse for assets to be included in the map";
         }
 
+        /// <summary>
+        /// Status bar text when hovering on Assets > Remove selected assets.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RemoveAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
         {
             StatusBarTxt.Text = "Remove the selected assets";
         }
+
+        #endregion
     }
 }
