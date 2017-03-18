@@ -70,6 +70,19 @@ namespace Editor.ViewModels
         }
 
         /// <summary>
+        /// Recrop assets already loaded after a change of the map tiles size.
+        /// </summary>
+        /// <param name="width">New tile width.</param>
+        /// <param name="height">New tile height.</param>
+        public void RecropAssets(int width, int height)
+        {
+            foreach (Tile tile in Tiles)
+            {
+                tile.CroppedAsset = new CroppedBitmap(tile.OriginalAsset, new Int32Rect(0, 0, width, height));
+            }
+        }
+
+        /// <summary>
         /// Removes selected assets from the tiles list.
         /// </summary>
         /// <param name="selection">Selected assets to remove.</param>

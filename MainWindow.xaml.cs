@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views;
@@ -20,6 +21,7 @@ namespace Editor
         #region Properties
 
         public EditorViewModel EditorViewModel { get; set; }
+        public PropertiesWindow PropertiesWindow { get; set; }
 
         #endregion
 
@@ -29,8 +31,11 @@ namespace Editor
         {
             // Initialization
             InitializeComponent();
+
             EditorViewModel = new EditorViewModel();
-            DataContext = EditorViewModel;
+            PropertiesWindow = new PropertiesWindow();
+
+            DataContext = PropertiesWindow.DataContext = EditorViewModel;
 
             // Command Bindings
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, NewCommandExecuted));
@@ -180,19 +185,52 @@ namespace Editor
         /// </summary>
         private void GenerateMap()
         {
-            PropertiesWindow propertiesWindow = new PropertiesWindow
-            {
-                Owner = this
-            };
-            propertiesWindow.ShowDialog();
+            PropertiesWindow.Owner = this;
+            PropertiesWindow.ShowDialog();
 
-            string mapName = propertiesWindow.MapNameValue.Text;
-            int mapWidth = int.Parse(propertiesWindow.MapWidthValue.Text);
-            int mapHeight = int.Parse(propertiesWindow.MapHeightValue.Text);
-            int tileWidth = int.Parse(propertiesWindow.TileWidthValue.Text);
-            int tileHeight = int.Parse(propertiesWindow.TileHeightValue.Text);
+            string mapName = PropertiesWindow.MapNameValue.Text;
+            int mapWidth = 0;
+            int mapHeight = 0;
+            int tileWidth = 0;
+            int tileHeight = 0;
+
+            try
+            {
+                mapWidth = int.Parse(PropertiesWindow.MapWidthValue.Text);
+                mapHeight = int.Parse(PropertiesWindow.MapHeightValue.Text);
+                tileWidth = int.Parse(PropertiesWindow.TileWidthValue.Text);
+                tileHeight = int.Parse(PropertiesWindow.TileHeightValue.Text);
+            }
+            catch (FormatException e)
+            {
+                string title = "Wrong format";
+                string message = "We were not able to create the map because one or more values were not in the correct format!";
+
+                ShowMessage(this, title, message, MessageBoxButton.OK, MessageBoxImage.Error);
+
+                return;
+            }
 
             EditorViewModel.WorldMap = new WorldMap(mapName, mapWidth, mapHeight, tileWidth, tileHeight);
+
+            GeometryDrawing geometryDrawing = new GeometryDrawing
+            {
+                Pen = new Pen(Brushes.LightGray, 1),
+                Geometry = new RectangleGeometry(new Rect(0, 0, tileWidth, tileHeight))
+            };
+
+            DrawingBrush drawingBrush = new DrawingBrush(geometryDrawing)
+            {
+                TileMode = TileMode.Tile,
+                Viewport = new Rect(0, 0, tileWidth, tileHeight),
+                ViewportUnits = BrushMappingMode.Absolute
+            };
+
+            MapBordersCanvas.Width = mapWidth * tileWidth;
+            MapBordersCanvas.Height = mapHeight * tileHeight;
+            MapBordersCanvas.Background = drawingBrush;
+
+            EditorViewModel.RecropAssets(tileWidth, tileHeight);
         }
 
         /// <summary>

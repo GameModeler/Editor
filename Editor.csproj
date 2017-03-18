@@ -61,6 +61,7 @@
     <Compile Include="Utilities\AssetUtils.cs" />
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
+    <Compile Include="ViewModels\PropertiesViewModel.cs" />
     <Compile Include="Views\PropertiesWindow.xaml.cs">
       <DependentUpon>PropertiesWindow.xaml</DependentUpon>
     </Compile>
