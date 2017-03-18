@@ -1,17 +1,11 @@
 ﻿using System.Windows.Media.Imaging;
-using Editor.Models.Base;
 using Editor.Utilities;
 
 namespace Editor.Models
 {
-    public class Tile : BaseModel
+    public class Tile
     {
         #region Attributes
-
-        private string _name;
-        private BitmapImage _originalAsset;
-        private CroppedBitmap _cropperAsset;
-
         #endregion
 
         #region Properties
@@ -19,41 +13,17 @@ namespace Editor.Models
         /// <summary>
         /// Tile's name.
         /// </summary>
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                _name = value;
-                OnPropertyChanged();
-            }
-        }
+        public string Name { get; set; }
 
         /// <summary>
         /// Tile's original asset.
         /// </summary>
-        public BitmapImage OriginalAsset
-        {
-            get { return _originalAsset; }
-            set
-            {
-                _originalAsset = value;
-                OnPropertyChanged();
-            }
-        }
+        public BitmapImage OriginalAsset { get; set; }
 
         /// <summary>
         /// Tile's cropped asset.
         /// </summary>
-        public CroppedBitmap CroppedAsset
-        {
-            get { return _cropperAsset; }
-            set
-            {
-                _cropperAsset = value;
-                OnPropertyChanged();
-            }
-        }
+        public CroppedBitmap CroppedAsset { get; set; }
 
         #endregion
 

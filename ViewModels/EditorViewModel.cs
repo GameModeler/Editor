@@ -4,18 +4,31 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Editor.Models;
+using Editor.ViewModels.Base;
 using Microsoft.Win32;
 
 namespace Editor.ViewModels
 {
-    public class EditorViewModel
+    public class EditorViewModel : BaseViewModel
     {
         #region Attributes
+
+        private WorldMap _worldMap;
+
         #endregion
 
         #region Properties
 
-        public WorldMap WorldMap { get; set; }
+        public WorldMap WorldMap
+        {
+            get { return _worldMap; }
+            set
+            {
+                _worldMap = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ObservableCollection<Tile> Tiles { get; set; }
 
         #endregion

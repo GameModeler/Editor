@@ -54,12 +54,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\Base\BaseModel.cs" />
     <Compile Include="Models\Cell.cs" />
     <Compile Include="Models\Tile.cs" />
     <Compile Include="Models\WorldMap.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Utilities\AssetUtils.cs" />
+    <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="ViewModels\EditorViewModel.cs" />
     <Compile Include="Views\PropertiesWindow.xaml.cs">
       <DependentUpon>PropertiesWindow.xaml</DependentUpon>

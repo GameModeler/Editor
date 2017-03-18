@@ -1,17 +1,8 @@
-﻿using Editor.Models.Base;
-
-namespace Editor.Models
+﻿namespace Editor.Models
 {
-    public class WorldMap : BaseModel
+    public class WorldMap
     {
         #region Attributes
-
-        private string _name;
-        private int _width;
-        private int _height;
-        private int _tileWidth;
-        private int _tileHeight;
-        private bool _isSaved;
 
         #endregion
 
@@ -20,81 +11,36 @@ namespace Editor.Models
         /// <summary>
         /// Map's name.
         /// </summary>
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                _name = value;
-                OnPropertyChanged();
-            }
-        }
+        public string Name { get; set; }
 
         /// <summary>
         /// Map's width (nb of tiles).
         /// </summary>
-        public int Width
-        {
-            get { return _width; }
-            set
-            {
-                _width = value;
-                OnPropertyChanged();
-            }
-        }
+        public int Width { get; set; }
 
         /// <summary>
         /// Map's height (nb of tiles).
         /// </summary>
-        public int Height
-        {
-            get { return _height; }
-            set
-            {
-                _height = value;
-                OnPropertyChanged();
-            }
-        }
+        public int Height { get; set; }
 
         /// <summary>
         /// Tiles width.
         /// </summary>
-        public int TileWidth
-        {
-            get { return _tileWidth; }
-            set
-            {
-                _tileWidth = value;
-                OnPropertyChanged();
-            }
-        }
+        public int TileWidth { get; set; }
 
         /// <summary>
         /// Tiles height.
         /// </summary>
-        public int TileHeight
-        {
-            get { return _tileHeight; }
-            set
-            {
-                _tileHeight = value;
-                OnPropertyChanged();
-            }
-        }
+        public int TileHeight { get; set; }
 
         /// <summary>
         /// Map's saving state.
         /// </summary>
-        public bool IsSaved
-        {
-            get { return _isSaved; }
-            set
-            {
-                _isSaved = value;
-                OnPropertyChanged();
-            }
-        }
+        public bool IsSaved { get; set; }
 
+        /// <summary>
+        /// Map's cells.
+        /// </summary>
         public Cell[,] Cells { get; set; }
 
         #endregion

@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor"
-        xmlns:vm="clr-namespace:Editor.ViewModels"
         mc:Ignorable="d"
         Title="Map Editor" Height="500" Width="800">
 
@@ -47,13 +46,13 @@
 
         <!-- Map -->
         <Grid Margin="10" Background="LightGray">
-            
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
-            <TextBlock x:Name="MapName" Text="Open or create a map using the File menu" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="20" Background="Honeydew"  Padding="15 ,5" />
+
+            <TextBlock x:Name="MapName" Text="{Binding WorldMap.Name, FallbackValue='Open or create a map using the File menu'}" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="20" Background="Honeydew" Padding="15 ,5" />
             <Canvas x:Name="MapBordersCanvas" Grid.Row="1" VerticalAlignment="top" HorizontalAlignment="left" />
         </Grid>
 

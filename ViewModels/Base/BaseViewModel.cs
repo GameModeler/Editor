@@ -2,9 +2,9 @@
 using System.Runtime.CompilerServices;
 using Editor.Annotations;
 
-namespace Editor.Models.Base
+namespace Editor.ViewModels.Base
 {
-    public class BaseModel : INotifyPropertyChanged
+    public class BaseViewModel : INotifyPropertyChanged
     {
         #region Attributes
         #endregion

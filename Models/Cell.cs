@@ -1,9 +1,8 @@
 ﻿using System.Collections.ObjectModel;
-using Editor.Models.Base;
 
 namespace Editor.Models
 {
-    public class Cell : BaseModel
+    public class Cell
     {
         #region Attributes
         #endregion
