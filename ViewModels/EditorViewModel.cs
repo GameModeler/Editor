@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Editor.Models;
@@ -48,7 +50,7 @@ namespace Editor.ViewModels
         /// <summary>
         /// Adds selected assets to the tiles list.
         /// </summary>
-        /// <param name="openFileDialog"></param>
+        /// <param name="openFileDialog">Dialog returning the assets to add.</param>
         public void AddAssets(OpenFileDialog openFileDialog)
         {
             foreach (string file in openFileDialog.FileNames)
@@ -64,6 +66,20 @@ namespace Editor.ViewModels
                 };
 
                 Tiles.Add(tile);
+            }
+        }
+
+        /// <summary>
+        /// Removes selected assets from the tiles list.
+        /// </summary>
+        /// <param name="selection">Selected assets to remove.</param>
+        public void RemoveAssets(IList selection)
+        {
+            var selectedAssets = selection.Cast<Tile>().ToList();
+
+            foreach (Tile asset in selectedAssets)
+            {
+                Tiles.Remove(asset);
             }
         }
 

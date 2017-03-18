@@ -154,7 +154,7 @@ namespace Editor
         /// <param name="e"></param>
         private void DeleteCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = false;
+            e.CanExecute = AssetsList.SelectedItems.Count > 0;
         }
 
         /// <summary>
@@ -164,7 +164,15 @@ namespace Editor
         /// <param name="e"></param>
         private void DeleteCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            string title = "Remove tiles";
+            string message = "Remove the selected tiles?";
+
+            MessageBoxResult result = ShowMessage(this, title, message, MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                EditorViewModel.RemoveAssets(AssetsList.SelectedItems);
+            }
         }
 
         /// <summary>
@@ -172,8 +180,10 @@ namespace Editor
         /// </summary>
         private void GenerateMap()
         {
-            PropertiesWindow propertiesWindow = new PropertiesWindow();
-            propertiesWindow.Owner = this;
+            PropertiesWindow propertiesWindow = new PropertiesWindow
+            {
+                Owner = this
+            };
             propertiesWindow.ShowDialog();
 
             string mapName = propertiesWindow.MapNameValue.Text;
@@ -227,7 +237,7 @@ namespace Editor
                 string title = "Exit the editor";
                 string message = "Are you sure?";
 
-                MessageBoxResult result = ShowMessage(this, title, message, MessageBoxButton.YesNo, MessageBoxImage.Information);
+                MessageBoxResult result = ShowMessage(this, title, message, MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.No)
                 {
