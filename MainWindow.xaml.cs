@@ -2,7 +2,9 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using Editor.Models;
 using Editor.ViewModels;
+using Editor.Views;
 
 namespace Editor
 {
@@ -51,7 +53,24 @@ namespace Editor
         /// <param name="e"></param>
         private void NewCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (EditorViewModel.WorldMap != null && !EditorViewModel.WorldMap.IsSaved)
+            {
+                string title = "Warning";
+                string message = "Do you want to save the current map before creating a new one?\nAll unsaved modifications will be lost.";
+
+                MessageBoxResult result = ShowMessage(this, title, message, MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // Todo: Save the current map
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+            }
+
+            GenerateMap();
         }
 
         /// <summary>
@@ -135,13 +154,72 @@ namespace Editor
         }
 
         /// <summary>
+        /// Generates a new empty map based on inputs from the user.
+        /// </summary>
+        private void GenerateMap()
+        {
+            PropertiesWindow propertiesWindow = new PropertiesWindow();
+            propertiesWindow.Owner = this;
+            propertiesWindow.ShowDialog();
+
+            string mapName = propertiesWindow.MapNameValue.Text;
+            int mapWidth = int.Parse(propertiesWindow.MapWidthValue.Text);
+            int mapHeight = int.Parse(propertiesWindow.MapHeightValue.Text);
+            int tileWidth = int.Parse(propertiesWindow.TileWidthValue.Text);
+            int tileHeight = int.Parse(propertiesWindow.TileHeightValue.Text);
+
+            EditorViewModel.WorldMap = new WorldMap(mapName, mapWidth, mapHeight, tileWidth, tileHeight);
+        }
+
+        /// <summary>
+        /// Shows a customizable message box and returns the chosen answer.
+        /// </summary>
+        /// <param name="owner">Window owning the message box.</param>
+        /// <param name="message">Message to show.</param>
+        /// <param name="title">Title of the message box.</param>
+        /// <param name="type">Accepted answers.</param>
+        /// <param name="icon">Icon of the message.</param>
+        /// <returns>The user's answer to the message.</returns>
+        public MessageBoxResult ShowMessage(Window owner, string title, string message, MessageBoxButton type, MessageBoxImage icon)
+        {
+            return MessageBox.Show(owner, message, title, type, icon);
+        }
+
+        /// <summary>
         /// Performs checks to avoid closing the editor without saving changes.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
-            MessageBox.Show("Bye!");
+            if (EditorViewModel.WorldMap != null && !EditorViewModel.WorldMap.IsSaved)
+            {
+                string title = "Warning";
+                string message = "Do you want to save the map before closing?\nAll unsaved modifications will be lost.";
+
+                MessageBoxResult result = ShowMessage(this, title, message, MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // Todo: Save the map
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
+                }
+            }
+            else
+            {
+                string title = "Exit the editor";
+                string message = "Are you sure?";
+
+                MessageBoxResult result = ShowMessage(this, title, message, MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.No)
+                {
+                    e.Cancel = true;
+                }
+            }
         }
 
         /// <summary>

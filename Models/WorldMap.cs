@@ -108,6 +108,7 @@ namespace Editor.Models
             Height = height;
             TileWidth = tileWidth;
             TileHeight = tileHeight;
+            IsSaved = false;
             Cells = new Cell [Width, Height];
 
             for (int i = 0; i < Cells.GetLength(0); i++)
