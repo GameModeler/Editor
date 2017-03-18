@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views;
+using Microsoft.Win32;
 
 namespace Editor
 {
@@ -29,6 +30,7 @@ namespace Editor
             // Initialization
             InitializeComponent();
             EditorViewModel = new EditorViewModel();
+            DataContext = EditorViewModel;
 
             // Command Bindings
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, NewCommandExecuted));
@@ -120,7 +122,7 @@ namespace Editor
         /// <param name="e"></param>
         private void BrowseCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = false;
+            e.CanExecute = EditorViewModel.WorldMap != null;
         }
 
         /// <summary>
@@ -130,7 +132,19 @@ namespace Editor
         /// <param name="e"></param>
         private void BrowseCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Browse assets",
+                Filter = "Images (*.jpg; *.png)|*.jpg;*.png",
+                Multiselect = true
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result == true)
+            {
+                EditorViewModel.AddAssets(openFileDialog);
+            }
         }
 
         /// <summary>
