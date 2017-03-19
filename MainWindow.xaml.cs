@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views;
@@ -16,10 +17,16 @@ namespace Editor
     public partial class MainWindow : Window
     {
         #region Attributes
+        
+        private double _zoom;
+        private Point _previousPosition;
+        private double _offsetX;
+        private double _offsetY;
+
         #endregion
 
         #region Properties
-
+        
         public EditorViewModel EditorViewModel { get; set; }
         public PropertiesWindow PropertiesWindow { get; set; }
 
@@ -42,6 +49,7 @@ namespace Editor
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OpenCommandExecuted));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, SaveCommandExecuted, SaveCommandCanExecute));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, CloseCommandExecuted));
+            CommandBindings.Add(new CommandBinding(NavigationCommands.Zoom, ResetCommandExecuted, ResetCommandCanExecute));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Find, BrowseCommandExecuted, BrowseCommandCanExecute));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, DeleteCommandExecuted, DeleteCommandCanExecute));
 
@@ -118,6 +126,30 @@ namespace Editor
         private void CloseCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             Close();
+        }
+
+        /// <summary>
+        /// Checks if the zoom and pan can be modified.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResetCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = EditorViewModel.WorldMap != null;
+        }
+
+        /// <summary>
+        /// Command invoked to reset the zoom and pan to their default values.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResetCommandExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            _zoom = 1;
+            _offsetX = 0;
+            _offsetY = 0;
+
+            MoveZoom();
         }
 
         /// <summary>
@@ -213,6 +245,23 @@ namespace Editor
 
             EditorViewModel.WorldMap = new WorldMap(mapName, mapWidth, mapHeight, tileWidth, tileHeight);
 
+            MapBordersCanvas.Children.Clear();
+
+            //for (int i = 0; i < mapWidth; i += tileWidth)
+            //{
+            //    for (int j = 0; j < mapHeight; j += tileHeight)
+            //    {
+            //        MapBordersCanvas.Children.Add(new Rectangle()
+            //        {
+            //            Width = tileWidth,
+            //            Height = tileHeight,
+            //            Margin = new Thickness(i, j, 0, 0),
+            //            Stroke = Brushes.LightGray,
+            //            StrokeThickness = 1
+            //        });
+            //    }
+            //}
+
             GeometryDrawing geometryDrawing = new GeometryDrawing
             {
                 Pen = new Pen(Brushes.LightGray, 1),
@@ -229,6 +278,10 @@ namespace Editor
             MapBordersCanvas.Width = mapWidth * tileWidth;
             MapBordersCanvas.Height = mapHeight * tileHeight;
             MapBordersCanvas.Background = drawingBrush;
+
+            _zoom = 1;
+            _offsetX = 0;
+            _offsetY = 0;
 
             EditorViewModel.RecropAssets(tileWidth, tileHeight);
         }
@@ -335,6 +388,16 @@ namespace Editor
         }
 
         /// <summary>
+        /// Status bar text when hovering on Map > Reset zoom and pan.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResetCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Resets the zoom and pan to their default values";
+        }
+
+        /// <summary>
         /// Status bar text when hovering on Assets > Add assets.
         /// </summary>
         /// <param name="sender"></param>
@@ -352,6 +415,74 @@ namespace Editor
         private void RemoveAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
         {
             StatusBarTxt.Text = "Remove the selected assets";
+        }
+
+        /// <summary>
+        /// Exetutes different behaviours on the map depending on the mouse button being pressed.
+        /// Left button draws the selected image of the ListView at the current position.
+        /// Right button erases the image at the current position.
+        /// Middle button pans on the map.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Map_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (EditorViewModel.WorldMap != null)
+            {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    // Todo: Draw selected tile.
+                }
+                else if (e.RightButton == MouseButtonState.Pressed)
+                {
+                    // Todo: Erase title at this location.
+                }
+                else if (e.MiddleButton == MouseButtonState.Pressed)
+                {
+                    var position = e.GetPosition(this);
+                    var diff = position - _previousPosition;
+                    _offsetX += diff.X;
+                    _offsetY += diff.Y;
+
+                    MoveZoom();
+                }
+
+                _previousPosition = e.GetPosition(this);
+            }
+        }
+
+        /// <summary>
+        /// Triggered when using the scroll wheel on the map.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Map_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (EditorViewModel.WorldMap != null)
+            {
+                if (e.Delta > 0)
+                {
+                    _zoom *= 1.1;
+                }
+                else
+                {
+                    _zoom /= 1.1;
+                }
+
+                MoveZoom();
+            }
+        }
+
+        /// <summary>
+        /// Zooms in and out on the map.
+        /// </summary>
+        private void MoveZoom()
+        {
+            TransformGroup transformGroup = new TransformGroup();
+            transformGroup.Children.Add(new ScaleTransform(_zoom, _zoom));
+            transformGroup.Children.Add(new TranslateTransform(_offsetX, _offsetY));
+
+            MapBordersCanvas.RenderTransform = transformGroup;
         }
 
         #endregion

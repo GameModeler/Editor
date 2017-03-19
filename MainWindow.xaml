@@ -17,6 +17,9 @@
                 <MenuItem x:Name="SaveCommand" Header="Save" Command="ApplicationCommands.Save" MouseEnter="SaveCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
                 <MenuItem x:Name="ExitCommand" Header="Exit" Command="ApplicationCommands.Close" MouseEnter="ExitCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
             </MenuItem>
+            <MenuItem Header="Map" Padding="5, 2">
+                <MenuItem x:Name="ResetCommand" Header="Reset zoom and pan" Command="Zoom" MouseEnter="ResetCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
+            </MenuItem>
             <MenuItem Header="Assets" Padding="5, 2">
                 <MenuItem x:Name="AddAssetsCommand" Header="Add assets" Command="ApplicationCommands.Find" MouseEnter="AddAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
                 <MenuItem x:Name="RemoveAssetsCommand" Header="Remove selected assets" Command="ApplicationCommands.Delete" MouseEnter="RemoveAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
@@ -57,7 +60,7 @@
             
             <!-- Map -->
             <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <Canvas x:Name="MapBordersCanvas" VerticalAlignment="top" HorizontalAlignment="left" />
+                <Canvas x:Name="MapBordersCanvas" VerticalAlignment="top" HorizontalAlignment="left" MouseMove="Map_MouseMove" MouseWheel="Map_MouseWheel" />
             </ScrollViewer>
 
         </Grid>
