@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Editor.Models;
 using Editor.ViewModels;
@@ -105,7 +107,7 @@ namespace Editor
         /// <param name="e"></param>
         private void SaveCommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = false;
+            e.CanExecute = !EditorViewModel.WorldMap?.IsSaved ?? false;
         }
 
         /// <summary>
@@ -245,45 +247,91 @@ namespace Editor
 
             EditorViewModel.WorldMap = new WorldMap(mapName, mapWidth, mapHeight, tileWidth, tileHeight);
 
-            MapBordersCanvas.Children.Clear();
+            MapCanvas.Children.Clear();
 
-            //for (int i = 0; i < mapWidth; i += tileWidth)
-            //{
-            //    for (int j = 0; j < mapHeight; j += tileHeight)
-            //    {
-            //        MapBordersCanvas.Children.Add(new Rectangle()
-            //        {
-            //            Width = tileWidth,
-            //            Height = tileHeight,
-            //            Margin = new Thickness(i, j, 0, 0),
-            //            Stroke = Brushes.LightGray,
-            //            StrokeThickness = 1
-            //        });
-            //    }
-            //}
-
-            GeometryDrawing geometryDrawing = new GeometryDrawing
+            MapCanvas.Children.Add(new Rectangle()
             {
-                Pen = new Pen(Brushes.LightGray, 1),
-                Geometry = new RectangleGeometry(new Rect(0, 0, tileWidth, tileHeight))
-            };
+                Width = mapWidth * tileWidth,
+                Height = mapHeight * tileHeight,
+                Stroke = Brushes.LightGray,
+                Fill = Brushes.Azure
+            });
 
-            DrawingBrush drawingBrush = new DrawingBrush(geometryDrawing)
+            for (int i = 0; i < mapWidth * tileWidth; i += tileWidth)
             {
-                TileMode = TileMode.Tile,
-                Viewport = new Rect(0, 0, tileWidth, tileHeight),
-                ViewportUnits = BrushMappingMode.Absolute
-            };
-
-            MapBordersCanvas.Width = mapWidth * tileWidth;
-            MapBordersCanvas.Height = mapHeight * tileHeight;
-            MapBordersCanvas.Background = drawingBrush;
+                for (int j = 0; j < mapHeight * tileHeight; j += tileHeight)
+                {
+                    MapCanvas.Children.Add(new Rectangle()
+                    {
+                        Width = tileWidth,
+                        Height = tileHeight,
+                        Margin = new Thickness(i, j, 0, 0),
+                        Stroke = Brushes.LightGray,
+                        StrokeThickness = 1
+                    });
+                }
+            }
 
             _zoom = 1;
             _offsetX = 0;
             _offsetY = 0;
 
             EditorViewModel.RecropAssets(tileWidth, tileHeight);
+        }
+
+        private void Draw(Point point, int index)
+        {
+            int x = (int) point.X / EditorViewModel.WorldMap.TileWidth;
+            int y = (int) point.Y / EditorViewModel.WorldMap.TileHeight;
+
+            if (x >= 0 && x < EditorViewModel.WorldMap.Width && y >= 0 && y < EditorViewModel.WorldMap.Height)
+            {
+                //EditorViewModel.WorldMap.Cells[x, y]
+                DrawOverCanvas(x, y, index);
+            }
+        }
+
+        /// <summary>
+        /// Draws the selected asset at a specific position on the map.
+        /// </summary>
+        /// <param name="x">Horizontal position.</param>
+        /// <param name="y">Vertical position.</param>
+        /// <param name="assetIndex">Index of the selected asset.</param>
+        private void DrawOverCanvas(int x, int y, int assetIndex)
+        {
+            if (assetIndex != -1)
+            {
+                var tile = AssetsList.Items[assetIndex] as Tile;
+                if (tile != null)
+                {
+                    Image asset = new Image()
+                    {
+                        Source = tile.CroppedAsset
+                    };
+                    Image imageToDraw = new Image()
+                    {
+                        Source = asset.Source,
+                        Width = EditorViewModel.WorldMap.TileWidth,
+                        Height = EditorViewModel.WorldMap.TileHeight,
+                        Margin = new Thickness(x * EditorViewModel.WorldMap.TileWidth,
+                            y * EditorViewModel.WorldMap.TileHeight, 0, 0)
+                    };
+                    MapContentCanvas.Children.Add(imageToDraw);
+                }
+            }
+            else
+            {
+                MapContentCanvas.Children.Add(new Rectangle()
+                {
+                    Width = EditorViewModel.WorldMap.TileWidth,
+                    Height = EditorViewModel.WorldMap.TileHeight,
+                    Margin = new Thickness(x * EditorViewModel.WorldMap.TileWidth,
+                        y * EditorViewModel.WorldMap.TileHeight, 0, 0),
+                    Stroke = Brushes.LightGray,
+                    Fill = Brushes.Azure,
+                    StrokeThickness = 1
+                });
+            }
         }
 
         /// <summary>
@@ -431,11 +479,11 @@ namespace Editor
             {
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    // Todo: Draw selected tile.
+                    Draw(e.GetPosition(MapCanvas), AssetsList.SelectedIndex);
                 }
                 else if (e.RightButton == MouseButtonState.Pressed)
                 {
-                    // Todo: Erase title at this location.
+                    Draw(e.GetPosition(MapCanvas), -1);
                 }
                 else if (e.MiddleButton == MouseButtonState.Pressed)
                 {
@@ -448,6 +496,26 @@ namespace Editor
                 }
 
                 _previousPosition = e.GetPosition(this);
+            }
+        }
+
+        /// <summary>
+        /// Calls the appropriate action when pressing a mouse button on the map.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Map_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (EditorViewModel.WorldMap != null)
+            {
+                if (e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
+                {
+                    Map_MouseMove(sender, e);
+                }
+                else if (e.MiddleButton == MouseButtonState.Pressed)
+                {
+                    _previousPosition = e.GetPosition(this);
+                }
             }
         }
 
@@ -482,7 +550,8 @@ namespace Editor
             transformGroup.Children.Add(new ScaleTransform(_zoom, _zoom));
             transformGroup.Children.Add(new TranslateTransform(_offsetX, _offsetY));
 
-            MapBordersCanvas.RenderTransform = transformGroup;
+            MapCanvas.RenderTransform = transformGroup;
+            MapContentCanvas.RenderTransform = transformGroup;
         }
 
         #endregion

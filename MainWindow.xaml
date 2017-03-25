@@ -60,7 +60,12 @@
             
             <!-- Map -->
             <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <Canvas x:Name="MapBordersCanvas" VerticalAlignment="top" HorizontalAlignment="left" MouseMove="Map_MouseMove" MouseWheel="Map_MouseWheel" />
+                <Grid ScrollViewer.CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                    <Canvas x:Name="MapCanvas" VerticalAlignment="top" HorizontalAlignment="left" MouseMove="Map_MouseMove" MouseDown="Map_MouseDown" MouseWheel="Map_MouseWheel" />
+                    <Canvas x:Name="MapContentCanvas" VerticalAlignment="top" HorizontalAlignment="left" MouseMove="Map_MouseMove" MouseDown="Map_MouseDown" MouseWheel="Map_MouseWheel" />
+                    
+                </Grid>
             </ScrollViewer>
 
         </Grid>
