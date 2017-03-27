@@ -279,16 +279,31 @@ namespace Editor
             EditorViewModel.RecropAssets(tileWidth, tileHeight);
         }
 
+        /// <summary>
+        /// Sets the Collection of tiles of a cell. 
+        /// </summary>
+        /// <param name="point">Position of the map to modify.</param>
+        /// <param name="index">Index of the asset or -1 to represent its removal.</param>
         private void Draw(Point point, int index)
         {
             int x = (int) point.X / EditorViewModel.WorldMap.TileWidth;
             int y = (int) point.Y / EditorViewModel.WorldMap.TileHeight;
 
-            if (x >= 0 && x < EditorViewModel.WorldMap.Width && y >= 0 && y < EditorViewModel.WorldMap.Height)
+            Cell cell = EditorViewModel.WorldMap.Cells[x, y];
+
+            if (index == -1)
             {
-                //EditorViewModel.WorldMap.Cells[x, y]
-                DrawOverCanvas(x, y, index);
+                if (cell.Tiles.Count > 0)
+                {
+                    cell.Tiles.RemoveAt(cell.Tiles.Count - 1);
+                }
             }
+            else if (x >= 0 && x < EditorViewModel.WorldMap.Width && y >= 0 && y < EditorViewModel.WorldMap.Height)
+            {
+                cell.Tiles.Add(AssetsList.Items[index] as Tile);
+            }
+
+            DrawOverCanvas(x, y, index);
         }
 
         /// <summary>
