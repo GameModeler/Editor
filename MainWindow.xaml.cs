@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Editor.Models;
 using Editor.ViewModels;
@@ -79,7 +78,7 @@ namespace Editor
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    // Todo: Save the current map
+                    SaveMap(EditorViewModel.WorldMap);
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
@@ -279,6 +278,11 @@ namespace Editor
             EditorViewModel.RecropAssets(tileWidth, tileHeight);
         }
 
+        public void SaveMap(WorldMap worldMap)
+        {
+            // Todo: Save the map.
+        }
+
         /// <summary>
         /// Sets the Collection of tiles of a cell. 
         /// </summary>
@@ -379,7 +383,7 @@ namespace Editor
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    // Todo: Save the map
+                    SaveMap(EditorViewModel.WorldMap);
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
