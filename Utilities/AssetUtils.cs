@@ -8,6 +8,6 @@ namespace Editor.Utilities
         public static CroppedBitmap GetCroppedBitmap(int width, int height, BitmapImage source)
         {
             return new CroppedBitmap(source, new Int32Rect(0, 0, width, height));
-        }
+        }     
     }
 }

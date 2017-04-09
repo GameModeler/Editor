@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor"
         mc:Ignorable="d"
-        Title="Map Editor" Height="500" Width="800">
+        Title="Map Editor" Height="750" Width="650">
 
     <DockPanel LastChildFill="True">
         
@@ -24,6 +24,7 @@
                 <MenuItem x:Name="AddAssetsCommand" Header="Add assets" Command="ApplicationCommands.Find" MouseEnter="AddAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
                 <MenuItem x:Name="RemoveAssetsCommand" Header="Remove selected assets" Command="ApplicationCommands.Delete" MouseEnter="RemoveAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
             </MenuItem>
+            <MenuItem x:Name="PrintCommand" Header="Print" Command="ApplicationCommands.Print" MouseEnter="ResetCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
         </Menu>
 
         <!-- Status Bar -->
