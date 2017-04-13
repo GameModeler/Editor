@@ -188,7 +188,10 @@ namespace Editor
                 {
                     return;
                 }
-                round_done(point, (this.round % 2) + 2, this.previous_position, false);
+                int delta = 2;
+                if (this.dame)
+                    delta = 4;
+                round_done(point, (this.round % 2) + delta, this.previous_position, false);
                 this.second_moove = false;
             }
             Boolean over = false;             
@@ -363,6 +366,8 @@ namespace Editor
             if(eat)
                 eating_piece(point, real_x, real_y);
             Boolean round_continue = check_possibilities(piece_index, x, y);
+            if (!eat && this.dame)
+                round_continue = false;
             round_done(point, piece, position, !round_continue);
             if (round_continue)
                 this.next_piece = position;
@@ -415,8 +420,37 @@ namespace Editor
                 this.round += 1;
                 this.next_piece = null;
                 this.dame = false;
+                pieceCount();
             }
             
+        }
+
+        private void pieceCount()
+        {
+            int white_piece = 0;
+            int black_piece = 0;
+            for(int i=this.down_limit; i<=this.up_limit; i++)
+            {
+                for (int j = this.down_limit; j <= this.up_limit; j++)
+                {
+                    if (this.game[i, j] == 2 || this.game[i, j] == 4)
+                        white_piece += 1;
+                    if (this.game[i, j] == 3 || this.game[i, j] == 5)
+                        black_piece += 1;
+                }
+            }
+            if(white_piece == 0 || black_piece == 0)
+            {
+                gameOver((white_piece == 0)?2:3);
+            }
+        }
+
+        private void gameOver(int index_win)
+        {
+            String winner = "white";
+            if (index_win == 2)
+                winner = "black";
+            MessageBoxResult result = ShowMessage(this, "Win", "Win color => " + winner, MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private bool check_possibilities(int index, int x, int y)
