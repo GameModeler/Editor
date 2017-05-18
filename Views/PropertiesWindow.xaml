@@ -31,11 +31,11 @@
         
         <!-- Map Width -->
         <Label x:Name="MapWidthLabel" Content="Map Width" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <TextBox x:Name="MapWidthValue" Text="{Binding WorldMap.Width, FallbackValue='10'}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="5, 0, 0, 0" Padding="6" />
+        <TextBox x:Name="MapWidthValue" Text="{Binding WorldMap.Width, FallbackValue='9'}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Margin="5, 0, 0, 0" Padding="6" />
 
         <!-- Map Height -->
         <Label x:Name="MapHeightLabel" Content="Map Height" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" />
-        <TextBox x:Name="MapHeightValue" Text="{Binding WorldMap.Height, FallbackValue='5'}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="5, 0, 0, 0" Padding="6" />
+        <TextBox x:Name="MapHeightValue" Text="{Binding WorldMap.Height, FallbackValue='9'}" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="5, 0, 0, 0" Padding="6" />
 
         <!-- Tile Width -->
         <Label x:Name="TileWidthLabel" Content="Tile Width" Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" />

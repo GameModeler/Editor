@@ -51,9 +51,18 @@ namespace Editor.ViewModels
         /// Adds selected assets to the tiles list.
         /// </summary>
         /// <param name="openFileDialog">Dialog returning the assets to add.</param>
-        public void AddAssets(OpenFileDialog openFileDialog)
+        public void AddAssets(OpenFileDialog openFileDialog = null, string[] files = null)
         {
-            foreach (string file in openFileDialog.FileNames)
+            string[] files_wpf;
+            if (openFileDialog == null)
+            {
+                files_wpf = files;
+            }
+            else
+            {
+                files_wpf = openFileDialog.FileNames;
+            }
+            foreach (string file in files_wpf)
             {
                 BitmapImage original = new BitmapImage(new Uri(file));
                 CroppedBitmap cropped = new CroppedBitmap(original, new Int32Rect(0, 0, WorldMap.TileWidth, WorldMap.TileHeight));
