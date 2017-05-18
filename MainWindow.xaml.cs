@@ -42,6 +42,7 @@ namespace Editor
         private Int32 mapHeight;
         private Int32 tileWidth;
         private Int32 tileHeight;
+        private string[] cases_pieces;
         #endregion
 
         #region Properties
@@ -85,48 +86,37 @@ namespace Editor
         {
             this.draw_game_map(null);
 
-            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            
             // Set map image
-            string[] cases = { directory + "/media/image/case/white.png", directory + "/media/image/case/brown.jpg" };
-            EditorViewModel.AddAssets(null, cases);
+            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            this.cases_pieces = new string[] { directory + "/media/image/case/white.png",
+                                               directory + "/media/image/case/brown.jpg",
+                                               directory + "/media/image/piece/white.png",
+                                               directory + "/media/image/piece/black.png",
+                                               directory + "/media/image/piece/white_dame.png",
+                                               directory + "/media/image/piece/black_dame.png" };
+            EditorViewModel.AddAssets(null, cases_pieces);
 
-            // Draw map
             int index;
             Point point = new Point();
             for(int i=0; i< this.mapWidth; i++)
             {
                 for(int j=0; j< this.mapHeight; j++)
                 {
+                    // Draw map
                     index = (i + j) % 2;
                     int[] position = { i, j };
                     Draw(point, index, position);
                     if(index == 1)
                         this.game[i, j] = 0;
-                }
-            }
 
-            // Set piece image
-            string[] pieces = { directory + "/media/image/piece/white.png",
-                                directory + "/media/image/piece/black.png",
-                                directory + "/media/image/piece/white_dame.png",
-                                directory + "/media/image/piece/black_dame.png" };
-            EditorViewModel.AddAssets(null, pieces);
-            
-            // Draw piece on map
-            Point piece_point = new Point();
-            for (int i = 0; i < this.mapWidth; i++)
-            {
-                for (int j = 0; j < this.mapHeight; j++)
-                {
-                   
+                    // Draw piece on map
                     int[] piece_position = { i, j };
-                    if((i+j)%2 == 1 && (j < 4 | j > 5))
+                    if ((i + j) % 2 == 1 && (j < 4 | j > 5))
                     {
-                        int piece_index = (j<4)?2:3;
-                        this.game[i,j] = piece_index;
-                        Draw(piece_point, piece_index, piece_position);
-                    }             
+                        int piece_index = (j < 4) ? 2 : 3;
+                        this.game[i, j] = piece_index;
+                        Draw(point, piece_index, piece_position);
+                    }
                 }
             }
             this.set_game_attr(null);
@@ -136,11 +126,9 @@ namespace Editor
         {
             this.draw_game_map(game);
 
-            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-
             // Set map image
-            string[] cases = { game.Images[0], game.Images[1] };
-            EditorViewModel.AddAssets(null, cases);
+            this.cases_pieces = game.Images;
+            EditorViewModel.AddAssets(null, this.cases_pieces);
 
             // Draw map
             int index;
@@ -153,26 +141,14 @@ namespace Editor
                     int[] position = { i, j };
                     Draw(point, index, position);
 
-                }
-            }
-
-            // Set piece image
-            string[] pieces = { game.Images[2], game.Images[3], game.Images[4], game.Images[5] };
-            EditorViewModel.AddAssets(null, pieces);
-
-            // Draw piece on map
-            Point piece_point = new Point();
-            for (int i = 0; i < mapWidth; i++)
-            {
-                for (int j = 0; j < mapHeight; j++)
-                {
-
+                    // Draw piece on map
                     int[] piece_position = { i, j };
                     if (game.Game_map[i, j] != 0)
-                        Draw(piece_point, game.Game_map[i, j], piece_position);
+                        Draw(point, game.Game_map[i, j], piece_position);
 
                 }
             }
+
             this.set_game_attr(game);
         }
 
@@ -312,7 +288,7 @@ namespace Editor
                             if (!this.dame)
                             {
 
-                                if (round % 2 == 0)
+                                if (round % 2 == 0) // white eat black
                                 {
                                     int piece = 2;
                                     int[] pieces_check = { 3, 5 };
@@ -556,6 +532,24 @@ namespace Editor
             this.game[x, y] = piece_index;
         }
 
+        private void save_game()
+        {
+            if (this.no_edit == false)
+                return;
+            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            if (this.cases_pieces.Length == 0)
+            {
+                this.cases_pieces = new string[] {  directory + "/media/image/case/white.png",
+                                                    directory + "/media/image/case/brown.jpg",
+                                                    directory + "/media/image/piece/white.png",
+                                                    directory + "/media/image/piece/black.png",
+                                                    directory + "/media/image/piece/white_dame.png",
+                                                    directory + "/media/image/piece/black_dame.png" };
+            }
+            Game game = new Game(this.game, this.round, this.down_limit, this.up_limit, this.second_moove, cases_pieces);
+            DataBase.Binary.BinaryManager.WriteToBinaryFile<Game>(directory + "/media/save/", "game.bin", game);
+        }
+
         /************************************************************************************************/
 
         /// <summary>
@@ -618,18 +612,7 @@ namespace Editor
         /// <param name="e"></param>
         private void SaveCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            if (this.no_edit == false)
-                return;
-            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            string[] cases = {  directory + "/media/image/case/white.png",
-                                directory + "/media/image/case/brown.jpg",
-                                directory + "/media/image/piece/white.png",
-                                directory + "/media/image/piece/black.png",
-                                directory + "/media/image/piece/white_dame.png",
-                                directory + "/media/image/piece/black_dame.png" };
-
-            Game game = new Game(this.game, this.round, this.down_limit, this.up_limit, this.second_moove, cases);
-            DataBase.Binary.BinaryManager.WriteToBinaryFile<Game>(directory+"/media/save/", "game.bin", game);
+            this.save_game();
         }
 
         /// <summary>
@@ -794,7 +777,7 @@ namespace Editor
 
         public void SaveMap(WorldMap worldMap)
         {
-            // Todo: Save the map.
+            this.save_game();
         }
 
         /// <summary>
