@@ -5,7 +5,6 @@ using System.Windows;
 using Editor.ViewModels.Base;
 using Map.Models;
 using Map.Utilities;
-using Microsoft.Win32;
 using Prism.Commands;
 
 namespace Editor.ViewModels
@@ -165,7 +164,8 @@ namespace Editor.ViewModels
 
             if (assetFiles != null)
             {
-                foreach (var file in assetFiles.FileNames)
+                var newFiles = assetFiles.FileNames.Where(af => Assets.All(a => new Asset(af).Location != a.Location));
+                foreach (var file in newFiles)
                 {
                     Assets.Add(new Asset(file));
                 }
