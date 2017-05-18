@@ -38,6 +38,10 @@ namespace Editor
         private int down_limit;
         private int up_limit;
         private Boolean dame;
+        private Int32 mapWidth;
+        private Int32 mapHeight;
+        private Int32 tileWidth;
+        private Int32 tileHeight;
         #endregion
 
         #region Properties
@@ -79,59 +83,20 @@ namespace Editor
         /************************************ TEST Jeu de Dame *****************************************************/
         private void PrintCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            String mapName = "Dame";
-            Int32 mapWidth = 10;
-            Int32 mapHeight = 10;
-            this.game = new int[mapWidth,mapHeight];
-            Int32 tileWidth = 150;
-            Int32 tileHeight = 150;
-            EditorViewModel.WorldMap = new WorldMap(mapName, mapWidth, mapHeight, tileWidth, tileHeight);
-            MapCanvas.Children.Clear();
-
-            MapCanvas.Children.Add(new Rectangle()
-            {
-                Width = mapWidth * tileWidth,
-                Height = mapHeight * tileHeight,
-                Stroke = Brushes.LightGray,
-                Fill = Brushes.Azure
-            });
-
-            for (int i = 0; i < mapWidth * tileWidth; i += tileWidth)
-            {
-                for (int j = 0; j < mapHeight * tileHeight; j += tileHeight)
-                {
-                    MapCanvas.Children.Add(new Rectangle()
-                    {
-                        Width = tileWidth,
-                        Height = tileHeight,
-                        Margin = new Thickness(i, j, 0, 0),
-                        Stroke = Brushes.LightGray,
-                        StrokeThickness = 1
-                    });
-                }
-            }
-
-            _zoom = 1;
-            _offsetX = 0;
-            _offsetY = 0;
-            EditorViewModel.RecropAssets(tileWidth, tileHeight);
-
-            _zoom /= 2.5;
-            MoveZoom();
-
+            this.draw_game_map(null);
 
             string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
             
             // Set map image
-            string[] cases = { directory+"/media/image/case/white.png", directory + "/media/image/case/brown.jpg" };
+            string[] cases = { directory + "/media/image/case/white.png", directory + "/media/image/case/brown.jpg" };
             EditorViewModel.AddAssets(null, cases);
 
             // Draw map
             int index;
             Point point = new Point();
-            for(int i=0; i<mapWidth; i++)
+            for(int i=0; i< this.mapWidth; i++)
             {
-                for(int j=0; j<mapHeight; j++)
+                for(int j=0; j< this.mapHeight; j++)
                 {
                     index = (i + j) % 2;
                     int[] position = { i, j };
@@ -150,9 +115,9 @@ namespace Editor
             
             // Draw piece on map
             Point piece_point = new Point();
-            for (int i = 0; i < mapWidth; i++)
+            for (int i = 0; i < this.mapWidth; i++)
             {
-                for (int j = 0; j < mapHeight; j++)
+                for (int j = 0; j < this.mapHeight; j++)
                 {
                    
                     int[] piece_position = { i, j };
@@ -164,22 +129,120 @@ namespace Editor
                     }             
                 }
             }
+            this.set_game_attr(null);
+        }
 
+        private void restore_game(Game game)
+        {
+            this.draw_game_map(game);
+
+            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+
+            // Set map image
+            string[] cases = { game.Images[0], game.Images[1] };
+            EditorViewModel.AddAssets(null, cases);
+
+            // Draw map
+            int index;
+            Point point = new Point();
+            for (int i = 0; i < mapWidth; i++)
+            {
+                for (int j = 0; j < mapHeight; j++)
+                {
+                    index = (i + j) % 2;
+                    int[] position = { i, j };
+                    Draw(point, index, position);
+
+                }
+            }
+
+            // Set piece image
+            string[] pieces = { game.Images[2], game.Images[3], game.Images[4], game.Images[5] };
+            EditorViewModel.AddAssets(null, pieces);
+
+            // Draw piece on map
+            Point piece_point = new Point();
+            for (int i = 0; i < mapWidth; i++)
+            {
+                for (int j = 0; j < mapHeight; j++)
+                {
+
+                    int[] piece_position = { i, j };
+                    if (game.Game_map[i, j] != 0)
+                        Draw(piece_point, game.Game_map[i, j], piece_position);
+
+                }
+            }
+            this.set_game_attr(game);
+        }
+
+        private void draw_game_map(Game game)
+        {
+            String mapName = "Dame";
+            this.mapWidth = 10;
+            this.mapHeight = 10;
+            if(game == null)
+            {
+                this.game = new int[mapWidth, mapHeight];
+            }
+            else
+            {
+                this.game = game.Game_map;
+            }
+
+            this.tileWidth = 150;
+            this.tileHeight = 150;
+            EditorViewModel.WorldMap = new WorldMap(mapName, this.mapWidth, this.mapHeight, this.tileWidth, this.tileHeight);
+            MapCanvas.Children.Clear();
+
+            MapCanvas.Children.Add(new Rectangle()
+            {
+                Width = this.mapWidth * this.tileWidth,
+                Height = this.mapHeight * this.tileHeight,
+                Stroke = Brushes.LightGray,
+                Fill = Brushes.Azure
+            });
+
+            for (int i = 0; i < this.mapWidth * this.tileWidth; i += this.tileWidth)
+            {
+                for (int j = 0; j < this.mapHeight * this.tileHeight; j += this.tileHeight)
+                {
+                    MapCanvas.Children.Add(new Rectangle()
+                    {
+                        Width = this.tileWidth,
+                        Height = this.tileHeight,
+                        Margin = new Thickness(i, j, 0, 0),
+                        Stroke = Brushes.LightGray,
+                        StrokeThickness = 1
+                    });
+                }
+            }
+            _zoom = 1;
+            _offsetX = 0;
+            _offsetY = 0;
+            EditorViewModel.RecropAssets(this.tileWidth, this.tileHeight);
+
+            _zoom /= 2.5;
+            MoveZoom();
+        }
+
+        private void set_game_attr(Game game)
+        {
             // Hide and resize asset element
             AssetsList.Visibility = Visibility.Hidden;
             AssetsList.Height = 0;
             AssetsList.Width = 0;
             // stop action on left button
             this.no_edit = true;
-            this.round = 0;
-            this.second_moove = false;
+            this.round = (game != null) ? game.Round : 0;
+            this.second_moove = (game != null) ? game.Second_moove : false;
             this.previous_position = null;
             this.next_piece = null;
-            this.down_limit = 0;
-            this.up_limit = mapHeight - 1;
+            this.down_limit = (game != null) ? game.Down_limit : 0;
+            this.up_limit = (game != null) ? game.Up_limit : this.mapHeight - 1; ;
         }
 
-        private void Map_MouseDown_Game(object sender, MouseEventArgs e)
+        private void map_mouseDown_game(object sender, MouseEventArgs e)
         {
             Point point = e.GetPosition(MapCanvas);
             if (e.RightButton == MouseButtonState.Pressed)
@@ -420,12 +483,12 @@ namespace Editor
                 this.round += 1;
                 this.next_piece = null;
                 this.dame = false;
-                pieceCount();
+                piece_count();
             }
             
         }
 
-        private void pieceCount()
+        private void piece_count()
         {
             int white_piece = 0;
             int black_piece = 0;
@@ -441,11 +504,11 @@ namespace Editor
             }
             if(white_piece == 0 || black_piece == 0)
             {
-                gameOver((white_piece == 0)?2:3);
+                game_over((white_piece == 0)?2:3);
             }
         }
 
-        private void gameOver(int index_win)
+        private void game_over(int index_win)
         {
             String winner = "white";
             if (index_win == 2)
@@ -529,8 +592,14 @@ namespace Editor
         /// <param name="e"></param>
         private void OpenCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (this.no_edit == false)
+                return;
+            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            Game game = DataBase.Binary.BinaryManager.ReadFromBinaryFile<Game>(directory + "/media/save/", "game.bin");
+            this.restore_game(game);
         }
+
+   
 
         /// <summary>
         /// Checks if the currently opened map can be saved during the save command invoke. 
@@ -549,7 +618,18 @@ namespace Editor
         /// <param name="e"></param>
         private void SaveCommandExecuted(object sender, ExecutedRoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (this.no_edit == false)
+                return;
+            string directory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            string[] cases = {  directory + "/media/image/case/white.png",
+                                directory + "/media/image/case/brown.jpg",
+                                directory + "/media/image/piece/white.png",
+                                directory + "/media/image/piece/black.png",
+                                directory + "/media/image/piece/white_dame.png",
+                                directory + "/media/image/piece/black_dame.png" };
+
+            Game game = new Game(this.game, this.round, this.down_limit, this.up_limit, this.second_moove, cases);
+            DataBase.Binary.BinaryManager.WriteToBinaryFile<Game>(directory+"/media/save/", "game.bin", game);
         }
 
         /// <summary>
@@ -940,7 +1020,7 @@ namespace Editor
         {
             if (no_edit)
             {
-                Map_MouseDown_Game(sender, e);
+                map_mouseDown_game(sender, e);
                 return;
             }
             if (EditorViewModel.WorldMap != null)
@@ -978,7 +1058,7 @@ namespace Editor
         {
             if (EditorViewModel.WorldMap != null)
             {
-                if (!this.no_edit && e.LeftButton == MouseButtonState.Pressed || e.RightButton == MouseButtonState.Pressed)
+                if (this.no_edit)
                 {
                     Map_MouseMove(sender, e);
                 }
