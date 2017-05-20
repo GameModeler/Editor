@@ -70,6 +70,28 @@ namespace Editor.ViewModels
         }
 
         /// <summary>
+        /// Adds selected assets to the tiles list.
+        /// </summary>
+        /// <param name="openFileDialog">Dialog returning the assets to add.</param>
+        public void AddAssets(string[] assetsFiles)
+        {
+            foreach (string file in assetsFiles)
+            {
+                BitmapImage original = new BitmapImage(new Uri(file));
+                CroppedBitmap cropped = new CroppedBitmap(original, new Int32Rect(0, 0, 0, 0));
+
+                Tile tile = new Tile
+                {
+                    Name = Path.GetFileName(file),
+                    OriginalAsset = original,
+                    CroppedAsset = cropped
+                };
+
+                Tiles.Add(tile);
+            }
+        }
+
+        /// <summary>
         /// Recrop assets already loaded after a change of the map tiles size.
         /// </summary>
         /// <param name="width">New tile width.</param>

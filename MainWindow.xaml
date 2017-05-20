@@ -24,6 +24,8 @@
                 <MenuItem x:Name="AddAssetsCommand" Header="Add assets" Command="ApplicationCommands.Find" MouseEnter="AddAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
                 <MenuItem x:Name="RemoveAssetsCommand" Header="Remove selected assets" Command="ApplicationCommands.Delete" MouseEnter="RemoveAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
             </MenuItem>
+            <MenuItem Header="Run" Padding="5, 2" x:Name="PrintAssetsCommand" Command="ApplicationCommands.Print" MouseEnter="PrintAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
+            <MenuItem Header="Replay" Padding="5, 2" x:Name="ReplayAssetsCommand" Command="ApplicationCommands.Redo" MouseEnter="ReplayAssetsCommand_MouseEnter" MouseLeave="UIElement_MouseLeave" />
         </Menu>
 
         <!-- Status Bar -->

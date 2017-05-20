@@ -9,6 +9,17 @@ using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views;
 using Microsoft.Win32;
+using System.IO;
+using System.Windows.Media.Imaging;
+using System.Collections.Generic;
+using Editor;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Logger.Loggers;
+using Logger.Interfaces;
+using Logger.Appenders;
+using Logger.Layout;
+using Logger.Utils;
 
 namespace Editor
 {
@@ -30,6 +41,8 @@ namespace Editor
         
         public EditorViewModel EditorViewModel { get; set; }
         public PropertiesWindow PropertiesWindow { get; set; }
+
+        public LoggerManager LoggerManager { get; set; }
 
         #endregion
 
@@ -53,6 +66,12 @@ namespace Editor
             CommandBindings.Add(new CommandBinding(NavigationCommands.Zoom, ResetCommandExecuted, ResetCommandCanExecute));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Find, BrowseCommandExecuted, BrowseCommandCanExecute));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, DeleteCommandExecuted, DeleteCommandCanExecute));
+            // Add Command binding to run taquin
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Print, RunCommandCanExecute));
+            // replay Taquin
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Redo, ReplayCommandCanExecute));
+
+            LoggerManager = initLogger();
 
             // Event handlers
             Closing += MainWindow_Closing;
@@ -492,31 +511,31 @@ namespace Editor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Map_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (EditorViewModel.WorldMap != null)
-            {
-                if (e.LeftButton == MouseButtonState.Pressed)
-                {
-                    Draw(e.GetPosition(MapCanvas), AssetsList.SelectedIndex);
-                }
-                else if (e.RightButton == MouseButtonState.Pressed)
-                {
-                    Draw(e.GetPosition(MapCanvas), -1);
-                }
-                else if (e.MiddleButton == MouseButtonState.Pressed)
-                {
-                    var position = e.GetPosition(this);
-                    var diff = position - _previousPosition;
-                    _offsetX += diff.X;
-                    _offsetY += diff.Y;
+        //private void Map_MouseMove(object sender, MouseEventArgs e)
+        //{
+        //    if (EditorViewModel.WorldMap != null)
+        //    {
+        //        if (e.LeftButton == MouseButtonState.Pressed)
+        //        {
+        //            Draw(e.GetPosition(MapCanvas), AssetsList.SelectedIndex);
+        //        }
+        //        else if (e.RightButton == MouseButtonState.Pressed)
+        //        {
+        //            Draw(e.GetPosition(MapCanvas), -1);
+        //        }
+        //        else if (e.MiddleButton == MouseButtonState.Pressed)
+        //        {
+        //            var position = e.GetPosition(this);
+        //            var diff = position - _previousPosition;
+        //            _offsetX += diff.X;
+        //            _offsetY += diff.Y;
 
-                    MoveZoom();
-                }
+        //            MoveZoom();
+        //        }
 
-                _previousPosition = e.GetPosition(this);
-            }
-        }
+        //        _previousPosition = e.GetPosition(this);
+        //    }
+        //}
 
         /// <summary>
         /// Calls the appropriate action when pressing a mouse button on the map.
@@ -574,5 +593,595 @@ namespace Editor
         }
 
         #endregion
+
+
+        #region TAQUIN
+
+        List<int> tab_victory; //= {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0};
+
+        bool soluble = false;
+        List<int> tab_chiffres;
+        private static Random rd = new Random();
+
+        private void RunCommandCanExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            tab_victory = intiTab();
+            tab_chiffres = initialisation();
+
+            // initialisation de la map
+            InitMap(4, 4);
+
+            // Récupère les images
+            fillAssetsList();
+
+            // Rempli la map avec les images
+            fillMapWithEmptyCase(tab_chiffres);
+
+            // Rempli la map avec les images
+            fillMapWithAssets(tab_chiffres);
+           
+
+        }
+
+        private List<int> initialisation()
+        {
+            bool paire = false;
+            int nbPermutation = 0;
+            List<int> tab_chiffres = intiTab();
+
+            do
+            {
+                Shuffle(tab_chiffres);
+
+                paire = calculPariteCaseVide(tab_chiffres);
+
+                if ((nbPermutation % 2 == 0 && paire == true) || (nbPermutation % 2 != 0 && paire == false))
+                {
+                    soluble = true;
+                }
+                else
+                {
+                    soluble = false;
+                }
+
+            } while (soluble == false);
+
+            return tab_chiffres;
+
+        }
+
+        private List<int> intiTab()
+        {
+            List<int> list = new List<int>();
+
+            for (int i = 1; i < 16; i++)
+            {
+                list.Add(i);
+            }
+
+            list.Add(0);
+
+            return list;
+        }
+
+        public void Shuffle<T>(IList<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rd.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
+
+        //public static void Shuffle<T>(this IList<T> list)
+        //{
+        //    int n = list.Count;
+        //    while (n > 1)
+        //    {
+        //        n--;
+        //        int k = rd.Next(n + 1);
+        //        T value = list[k];
+        //        list[k] = list[n];
+        //        list[n] = value;
+        //    }
+        //}
+
+
+        /// <summary>
+        /// Mélange les tiles
+        /// </summary>
+        /// <param name="tab"></param>
+        /// <returns></returns>
+        //private int[] melangeTab(int[] tab)
+        //{
+
+        //    Random rand = new Random();
+        //    int hasard;
+        //    int sauve;
+
+        //    for (int i = 0; i < tab.Length; i++)
+        //    {
+        //        tab[i] = i;
+        //    }
+
+        //    for (int i = 0; i < tab.Length; i++)
+        //    {
+
+        //        //hasard reçoit un nombre entier aléatoire entre 0 et position
+        //        hasard = rd.Next(tab.Length - 1);
+
+        //        //Echange
+        //        sauve = tab[i];
+        //        tab[i] = tab[hasard];
+        //        tab[hasard] = sauve;
+        //    }
+
+        //    return tab;
+        //}
+
+        /// <summary>
+        /// Calcul parité case vide
+        /// </summary>
+        /// <param name="tab"></param>
+        /// <returns></returns>
+        //private bool calculPariteCaseVide(int[] tab)
+        //{
+
+        //    bool paire = false;
+
+        //    for (int k = 0; k < tab.Length; k++)
+        //    {
+        //        if (tab[k] == 0)
+        //        {
+
+        //            if (k % 2 == 0)
+        //            {
+
+        //                paire = true;
+        //            }
+        //            else
+        //            {
+        //                paire = false;
+        //            }
+        //        }
+        //    }
+
+        //    return paire;
+        //}
+
+        private bool calculPariteCaseVide(List<int> tab)
+        {
+
+            bool paire = false;
+
+            for (int k = 0; k < tab.Count; k++)
+            {
+                if (tab[k] == 0)
+                {
+
+                    if (k % 2 == 0)
+                    {
+
+                        paire = true;
+                    }
+                    else
+                    {
+                        paire = false;
+                    }
+                }
+            }
+
+            return paire;
+        }
+
+        // METHODES D'INITIALISATION DE LA MAP
+
+        /// <summary>
+        /// Generates a new empty map based on inputs from the user.
+        /// </summary>
+        private void InitMap(int nbCasesV, int nbCasesH)
+        {
+
+            string mapName = PropertiesWindow.MapNameValue.Text;
+            int mapWidth = nbCasesH;
+            int mapHeight = nbCasesV;
+            int tileWidth = 90;
+            int tileHeight = 90;
+
+            EditorViewModel.WorldMap = new WorldMap(mapName, mapWidth, mapHeight, tileWidth, tileHeight);
+
+            MapCanvas.Children.Clear();
+
+            MapCanvas.Children.Add(new Rectangle()
+            {
+                Width = mapWidth * tileWidth,
+                Height = mapHeight * tileHeight,
+                Stroke = Brushes.LightGray,
+                Fill = Brushes.Azure
+            });
+
+            for (int i = 0; i < mapWidth * tileWidth; i += tileWidth)
+            {
+                for (int j = 0; j < mapHeight * tileHeight; j += tileHeight)
+                {
+                    MapCanvas.Children.Add(new Rectangle()
+                    {
+                        Width = tileWidth,
+                        Height = tileHeight,
+                        Margin = new Thickness(i, j, 0, 0),
+                        Stroke = Brushes.LightGray,
+                        StrokeThickness = 1
+                    });
+                }
+            }
+
+            _zoom = 1;
+            _offsetX = 0;
+            _offsetY = 0;
+
+            EditorViewModel.RecropAssets(tileWidth, tileHeight);
+        }
+
+        /// <summary>
+        /// Récupère les images dans le dossier static
+        /// </summary>
+        private void fillAssetsList()
+        {
+            string currentDir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            string[] filePaths = Directory.GetFiles(currentDir + "/static/", "*.png");
+
+            EditorViewModel.AddAssets(filePaths);
+        }
+
+        private void fillMapWithAssets(List<int> tab)
+        {
+
+            int idx = 0;
+            int idxCaseVide = getEmptyCaseIdx(tab);
+
+            for (int x = 0; x <= 3; x++)
+            {
+                for (int y = 0; y <= 3; y++)
+                {
+
+                    if(idx != idxCaseVide)
+                    {
+                        DrawTaquin(x, y, tab[idx]);
+                    }
+                    
+
+                    idx++;
+                }
+            }        
+        }
+
+        private void fillMapWithEmptyCase(List<int> tab)
+        {
+            int idxCaseVide = getEmptyCaseIdx(tab);
+
+            for (int x = 0; x <= 3; x++)
+            {
+                for (int y = 0; y <= 3; y++)
+                {
+                    DrawTaquin(x, y, tab[idxCaseVide]);
+                }
+            }
+        }
+
+        private int getEmptyCaseIdx(List<int> tab)
+        {
+            return tab.FindIndex(x => x == 0);
+
+        }
+
+
+
+        /// <summary>
+        /// Draws the selected asset at a specific position on the map.
+        /// </summary>
+        /// <param name="x">Horizontal position.</param>
+        /// <param name="y">Vertical position.</param>
+        /// <param name="assetIndex">Index of the selected asset.</param>
+        private void DrawTaquin(int x, int y, int assetIndex)
+        {
+
+            string fileName = ToAssetFileName(assetIndex);
+
+            List<Tile> tiles = EditorViewModel.Tiles.ToList();
+            var tile = tiles.Find(xTile => xTile.Name.Equals(fileName));
+
+            if (tile != null)
+            {
+                Image asset = new Image()
+                {
+                    Source = tile.CroppedAsset
+                };
+                Image imageToDraw = new Image()
+                {
+                    Source = asset.Source,
+                    Width = EditorViewModel.WorldMap.TileWidth,
+                    Height = EditorViewModel.WorldMap.TileHeight,
+                    Margin = new Thickness(x * EditorViewModel.WorldMap.TileWidth,
+                        y * EditorViewModel.WorldMap.TileHeight, 0, 0)
+                };
+                MapContentCanvas.Children.Add(imageToDraw);
+
+                // Réferencement de la tile dans la cell correspondante
+                EditorViewModel.WorldMap.Cells[x, y].Tiles.Add(tile);
+            }
+        }
+
+        private string ToAssetFileName(int assetIndex)
+        {
+            return String.Format("{0}.png", assetIndex); 
+        }
+
+        /// <summary>
+        /// Exetutes different behaviours on the map depending on the mouse button being pressed.
+        /// Left button draws the selected image of the ListView at the current position.
+        /// Right button erases the image at the current position.
+        /// Middle button pans on the map.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Map_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (EditorViewModel.WorldMap != null)
+            {
+                // clique gauche
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+
+                    MoveTaquin(e.GetPosition(MapCanvas), AssetsList.SelectedIndex);
+                    //logger.Log("Bravo, c'est gagne");
+
+
+                    ckeckVictory();
+                }
+
+                _previousPosition = e.GetPosition(this);
+            }
+        }
+
+        private void ckeckVictory()
+        {
+
+            if(isVictory())
+            {
+                LoggerManager.GetLogger("TaquinLogger").Log("Bravo, c'est gagne");
+            }
+        }
+
+        private LoggerManager initLogger()
+        {
+            LoggerManager manager = new LoggerManager();
+
+            ILogger logger = manager.CreateLogger("TaquinLogger");
+
+            ToastAppender toast = (ToastAppender)logger.AddAppender(Logger.Utils.AppenderType.TOAST);
+
+            string ligne1 = LogElements.TIMESTAMP.StrRef("T") + " - " + LogElements.LOGGER_NAME.StrRef();
+            string ligne2 = LogElements.MESSAGE.StrRef();
+
+            ToastLayout toastLay = new ToastLayout(ligne1, ligne2);
+
+            toast.ToastLayout = toastLay;
+
+            ILogger loggerMessageBox = manager.CreateLogger("LoggerBox");
+
+            MessageBoxAppender messageBox = (MessageBoxAppender)loggerMessageBox.AddAppender(AppenderType.MESSAGE_BOX);
+
+            string captionPattern = LogElements.TIMESTAMP.StrRef() + " - " + LogElements.LEVEL.StrRef();
+
+            ModalBox myBox = new ModalBox(captionPattern, System.Windows.Forms.MessageBoxIcon.Warning);
+
+            myBox.Buttons = System.Windows.Forms.MessageBoxButtons.OKCancel;
+            messageBox.Box = myBox;
+
+            return manager;
+        }
+
+        private bool isVictory()
+        {
+            return tab_chiffres.SequenceEqual(tab_victory);
+        }
+
+        private void MoveTaquin(Point point, int index)
+        {
+            int x = (int)point.X / EditorViewModel.WorldMap.TileWidth;
+            int y = (int)point.Y / EditorViewModel.WorldMap.TileHeight;
+
+            // Cellule
+            Cell cell = EditorViewModel.WorldMap.Cells[x, y];
+            Tile tile = cell.Tiles.Last<Tile>();
+
+            // Récupérer le nombre de la case
+            int tabIndx = x * 4 + y;
+
+            //Réupérer la case vide
+            int caseVideIdx = tab_chiffres.FindIndex(item => item == 0);
+            int xCaseVide = calcX(caseVideIdx);
+            int yCaseVide = calcY(caseVideIdx, xCaseVide);
+
+            Cell cellvide = EditorViewModel.WorldMap.Cells[xCaseVide, yCaseVide];
+            Tile tileVide = cell.Tiles.First<Tile>();
+
+            int varTemp = 0;
+
+            if(tabIndx + 1 == caseVideIdx || 
+               tabIndx - 1 == caseVideIdx ||
+               tabIndx - 4 == caseVideIdx ||
+               tabIndx + 4 == caseVideIdx )
+            {
+
+                // Mise à jour du tableau
+                // Permutation de la case vide et de l'asset
+                varTemp = tab_chiffres[caseVideIdx];
+                tab_chiffres[caseVideIdx] = tab_chiffres[tabIndx];
+                tab_chiffres[tabIndx] = varTemp;
+
+                // on enleve l'asset
+                cell.Tiles.RemoveAt(cell.Tiles.Count - 1);
+
+                // Dessin de la case cliquée
+                DrawOverCanvasTaquin(x, y, tileVide, true);
+
+                // on ajoute l'asset dans la précedente case vide
+                cellvide.Tiles.Add(tile);
+
+                // Dessin de la case vide
+                DrawOverCanvasTaquin(xCaseVide, yCaseVide, tile, false);
+            }
+        }
+
+        private int calcX(int idx)
+        {
+            if(idx <= 3)
+            {
+                return 0;
+            } else if( idx <= 7)
+            {
+                return 1;
+            } else if ( idx <= 11)
+            {
+                return 2;
+            } else
+            {
+                return 3;
+            }
+        }
+
+        private int calcY(int idx, int x)
+        {
+            if (x == 0)
+            {
+                return idx;
+            }
+            else if (x == 1)
+            {
+                return idx - 4;
+            }
+            else if (x == 2)
+            {
+                return idx - 8;
+            }
+            else
+            {
+                return idx - 12;
+            }
+        }
+
+        /// <summary>
+        /// Draws the selected asset at a specific position on the map.
+        /// </summary>
+        /// <param name="x">Horizontal position.</param>
+        /// <param name="y">Vertical position.</param>
+        /// <param name="assetIndex">Index of the selected asset.</param>
+        private void DrawOverCanvasTaquin(int x, int y, Tile tile, bool remove = false)
+        {
+
+            if(!remove)
+            {                
+                // Dessin de la tile
+                if (tile != null)
+                {
+                    Image asset = new Image()
+                    {
+                        Source = tile.CroppedAsset
+                    };
+                    Image imageToDraw = new Image()
+                    {
+                        Source = asset.Source,
+                        Width = EditorViewModel.WorldMap.TileWidth,
+                        Height = EditorViewModel.WorldMap.TileHeight,
+                        Margin = new Thickness(x * EditorViewModel.WorldMap.TileWidth,
+                            y * EditorViewModel.WorldMap.TileHeight, 0, 0)
+                    };
+
+                    MapContentCanvas.Children.Add(imageToDraw);
+                }
+
+            } else
+            {
+                // Dessin de la tile en dessous
+                if (tile != null)
+                {
+                    Image asset = new Image()
+                    {
+                        Source = tile.CroppedAsset
+                    };
+                    Image imageToDraw = new Image()
+                    {
+                        Source = asset.Source,
+                        Width = EditorViewModel.WorldMap.TileWidth,
+                        Height = EditorViewModel.WorldMap.TileHeight,
+                        Margin = new Thickness(x * EditorViewModel.WorldMap.TileWidth,
+                            y * EditorViewModel.WorldMap.TileHeight, 0, 0)
+                    };
+
+                    MapContentCanvas.Children.Add(imageToDraw);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Status bar text when hovering on File > New.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PrintAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Run taquin";
+        }
+
+        /// <summary>
+        /// Status bar text when hovering on File > New.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReplayAssetsCommand_MouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBarTxt.Text = "Rejouer taquin";
+        }
+
+
+        /// <summary>
+        /// Replay Taquin
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ReplayCommandCanExecute(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (EditorViewModel.WorldMap != null)
+            {
+                tab_victory = intiTab();
+                tab_chiffres = initialisation();
+
+                // initialisation de la map
+                //InitMap(4, 4);
+
+                // Récupère les images
+                fillAssetsList();
+
+                // Rempli la map avec les images
+                fillMapWithEmptyCase(tab_chiffres);
+
+                // Rempli la map avec les images
+                fillMapWithAssets(tab_chiffres);
+            }
+            else
+            {
+
+                LoggerManager.GetLogger("LoggerBox").Log("Vous devez démarrer une partie avant de rejouer !");
+
+            }
+        }
+        #endregion
+
     }
 }
