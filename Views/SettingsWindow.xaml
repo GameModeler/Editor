@@ -5,12 +5,75 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor.Views"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen"
+        WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
-        Title="Settings" Height="300" Width="300">
-    
-    <Grid>
-        
+        Title="Map Settings" Width="500" Height="400">
+
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Map Settings -->
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Padding="10, 5, 0, 0">
+
+            <Grid>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="150" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Map Title -->
+                <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Name" />
+                <TextBox x:Name="MapTitle" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.Name}" />
+
+                <!-- Map Background -->
+                <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Background" />
+                <TextBox x:Name="MapBackground" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8, 5, 8" Padding="5" IsReadOnly="True" BorderThickness="0" Background="LightGray" />
+                <Button Grid.Row="1" Grid.Column="2" Content="Browse" Margin="5, 8, 10, 8" Padding="5" />
+
+                <!-- Map Width -->
+                <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Width" />
+                <TextBox x:Name="MapWidth" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.Width}" />
+
+                <!-- Map Height -->
+                <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Height" />
+                <TextBox x:Name="MapHeight" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.Height}" />
+
+                <!-- Cell Width -->
+                <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Cell Width" />
+                <TextBox x:Name="CellWidth" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.CellWidth}" />
+
+                <!-- Cell Height -->
+                <Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Cell Height" />
+                <TextBox x:Name="CellHeight" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.CellHeight}" />
+
+            </Grid>
+
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10" VerticalAlignment="Stretch" HorizontalAlignment="Right">
+            
+            <!-- Cancel Button -->
+            <Button Content="Cancel" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0, 0, 5, 0" Padding="15, 5" IsCancel="True" />
+
+            <!-- Apply Button -->
+            <Button Content="OK" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5, 0, 0, 0" Padding="15, 5" IsDefault="True" Command="{Binding ValidateSettingsCommand}" Click="BottomButton_OnClick" />
+
+        </StackPanel>
+
     </Grid>
-    
+
 </Window>

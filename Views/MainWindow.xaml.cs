@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System.Configuration;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Editor.ViewModels;
+using Prism.Commands;
 
 namespace Editor.Views
 {
@@ -11,6 +13,9 @@ namespace Editor.Views
     public partial class MainWindow : Window
     {
         #region Properties
+
+        public DelegateCommand ToggleLayersCommand { get; }
+        public DelegateCommand ToggleAssetsCommand { get; }
 
         #endregion
 
@@ -22,6 +27,10 @@ namespace Editor.Views
         public MainWindow()
         {
             InitializeComponent();
+            Title = ConfigurationManager.AppSettings.Get("AppName");
+
+            ToggleLayersCommand = new DelegateCommand(ToggleLayersCommand_OnExecuted, () => true);
+            ToggleAssetsCommand = new DelegateCommand(ToggleAssetsCommand_OnExecuted, () => true);
         }
 
         #endregion
@@ -75,6 +84,16 @@ namespace Editor.Views
         /// <param name="e">The event arguments.</param>
         private void CloseCommand_OnMouseEnter(object sender, MouseEventArgs e)
         {
+            StatusBar.Text = "Close the current map";
+        }
+
+        /// <summary>
+        /// Sets the status bar text for the exit command.
+        /// </summary>
+        /// <param name="sender">The UI element triggering the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void ExitCommand_OnMouseEnter(object sender, MouseEventArgs e)
+        {
             StatusBar.Text = "Exit the map editor";
         }
 
@@ -99,6 +118,26 @@ namespace Editor.Views
         }
 
         /// <summary>
+        /// Sets the status bar text for the add layer command.
+        /// </summary>
+        /// <param name="sender">The UI element triggering the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void AddLayerCommand_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBar.Text = "Add a layer to the map";
+        }
+
+        /// <summary>
+        /// Sets the status bar text for the remove layers command.
+        /// </summary>
+        /// <param name="sender">The UI element triggering the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void RemoveLayersCommand_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBar.Text = "Remove selected layers from the map";
+        }
+
+        /// <summary>
         /// Sets the status bar text for the map settings command.
         /// </summary>
         /// <param name="sender">The UI element triggering the event.</param>
@@ -106,6 +145,26 @@ namespace Editor.Views
         private void MapSettingsCommand_OnMouseEnter(object sender, MouseEventArgs e)
         {
             StatusBar.Text = "Open the map settings window";
+        }
+
+        /// <summary>
+        /// Sets the status bar text for the toggle layers command.
+        /// </summary>
+        /// <param name="sender">The UI element triggering the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void ToggleLayersCommand_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBar.Text = "Toggle the layers panel";
+        }
+
+        /// <summary>
+        /// Sets the status bar text for the toggle assets command.
+        /// </summary>
+        /// <param name="sender">The UI element triggering the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void ToggleAssetsCommand_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            StatusBar.Text = "Toggle the assets panel";
         }
 
         /// <summary>
@@ -126,6 +185,27 @@ namespace Editor.Views
         private void Command_OnMouseLeave(object sender, MouseEventArgs e)
         {
             StatusBar.Text = "Ready";
+        }
+
+        private void ToggleLayersCommand_OnExecuted()
+        {
+            LayerListPanel.Visibility = LayerListPanel.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ToggleAssetsCommand_OnExecuted()
+        {
+            AssetListPanel.Visibility = AssetListPanel.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// Forwards the selected layer to the view model for processing.
+        /// </summary>
+        /// <param name="sender">The UI element triggering the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void LayerList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var mainViewModel = DataContext as MainViewModel;
+            mainViewModel?.HandleLayerListSelection(e.AddedItems[0]);
         }
 
         /// <summary>

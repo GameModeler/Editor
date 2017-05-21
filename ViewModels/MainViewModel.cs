@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 using Editor.ViewModels.Base;
+using Editor.Views;
 using Map.Models;
 using Map.Utilities;
 using Prism.Commands;
@@ -14,6 +17,7 @@ namespace Editor.ViewModels
         #region Attributes
 
         private World _world;
+        private World _settingsWorld;
 
         #endregion
 
@@ -26,8 +30,17 @@ namespace Editor.ViewModels
             get => _world;
             set
             {
-                if (value == null) return;
                 _world = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public World SettingsWorld
+        {
+            get => _settingsWorld;
+            set
+            {
+                _settingsWorld = value;
                 OnPropertyChanged();
             }
         }
@@ -36,10 +49,14 @@ namespace Editor.ViewModels
         public DelegateCommand OpenCommand { get; }
         public DelegateCommand SaveCommand { get; }
         public DelegateCommand SaveAsCommand { get; }
+        public DelegateCommand CloseCommand { get; }
         public DelegateCommand ExitCommand { get; }
         public DelegateCommand AddAssetsCommand { get; }
         public DelegateCommand RemoveAssetsCommand { get; }
+        public DelegateCommand AddLayerCommand { get; }
+        public DelegateCommand RemoveLayerCommand { get; }
         public DelegateCommand SettingsCommand { get; }
+        public DelegateCommand ValidateSettingsCommand { get; }
         public DelegateCommand AboutCommand { get; }                    
 
         #endregion
@@ -50,15 +67,19 @@ namespace Editor.ViewModels
         {
             Assets = new ObservableCollection<Asset>();
 
-            NewCommand = new DelegateCommand(NewCommand_OnExecuted, NewCommand_OnCanExecute);
-            OpenCommand = new DelegateCommand(OpenCommand_OnExecuted, OpenCommand_OnCanExecute);
+            NewCommand = new DelegateCommand(NewCommand_OnExecuted, () => true);
+            OpenCommand = new DelegateCommand(OpenCommand_OnExecuted, () => true);
             SaveCommand = new DelegateCommand(SaveCommand_OnExecuted, SaveCommand_OnCanExecute);
-            SaveAsCommand = new DelegateCommand(SaveAsCommand_OnExecuted, SaveAsCommand_OnCanExecute);
-            ExitCommand = new DelegateCommand(ExitCommand_OnExecuted, ExitCommand_OnCanExecute);
-            AddAssetsCommand = new DelegateCommand(AddAssetsCommand_OnExecuted, AddAssetsCommand_OnCanExecute);
-            RemoveAssetsCommand = new DelegateCommand(RemoveAssetsCommand_OnExecuted, RemoveAssetsCommand_OnCanExecute);
-            SettingsCommand = new DelegateCommand(SettingsCommand_OnExecuted, SettingsCommand_OnCanExecute);
-            AboutCommand = new DelegateCommand(AboutCommand_OnExecuted, AboutCommand_OnCanExecute);
+            SaveAsCommand = new DelegateCommand(SaveAsCommand_OnExecuted, () => World != null);
+            CloseCommand = new DelegateCommand(CloseCommand_OnExecuted, () => World != null);
+            ExitCommand = new DelegateCommand(ExitCommand_OnExecuted, () => true);
+            AddAssetsCommand = new DelegateCommand(AddAssetsCommand_OnExecuted, () => World != null);
+            RemoveAssetsCommand = new DelegateCommand(RemoveAssetsCommand_OnExecuted, () => Assets.Any(a => a.IsSelected));
+            AddLayerCommand = new DelegateCommand(AddLayerCommand_OnExecuted, () => World != null);
+            RemoveLayerCommand = new DelegateCommand(RemoveLayerCommand_OnExecuted, RemoveLayerCommand_OnCanExecute);
+            SettingsCommand = new DelegateCommand(SettingsCommand_OnExecuted, () => World != null);
+            ValidateSettingsCommand = new DelegateCommand(ValidateSettingsCommand_OnExecuted, () => true);
+            AboutCommand = new DelegateCommand(AboutCommand_OnExecuted, () => true);
         }
 
         #endregion
@@ -66,29 +87,30 @@ namespace Editor.ViewModels
         #region Methods
 
         /// <summary>
-        /// Checks if the user is allowed to create a new map.
-        /// </summary>
-        private bool NewCommand_OnCanExecute()
-        {
-            return true;
-        }
-
-        /// <summary>
         /// Logic when the new command gets invoked.
         /// </summary>
         private void NewCommand_OnExecuted()
         {
-            World = new World();
+            if (World != null)
+            {
+                if (!World.IsSaved && AskToSave() == MessageBoxResult.Yes)
+                {
+                    MessageBox.Show("Need to save here");
+                }
 
+                World = null;
+                AddAssetsCommand.RaiseCanExecuteChanged();
+            }
+            
+            SettingsWorld = new World();
+            new SettingsWindow(Application.Current.MainWindow).ShowDialog();
+            World.Layers.Add(new Layer("Layer 1"));
+            World.Layers.Add(new Layer("Layer 2"));
+
+            SettingsCommand.RaiseCanExecuteChanged();
+            AddLayerCommand.RaiseCanExecuteChanged();
             AddAssetsCommand.RaiseCanExecuteChanged();
-        }
-
-        /// <summary>
-        /// Checks if the user is allowed to open a map.
-        /// </summary>
-        public bool OpenCommand_OnCanExecute()
-        {
-            return true;
+            CloseCommand.RaiseCanExecuteChanged();
         }
 
         /// <summary>
@@ -104,7 +126,7 @@ namespace Editor.ViewModels
         /// </summary>
         public bool SaveCommand_OnCanExecute()
         {
-            return false;
+            return World != null && !World.IsSaved;
         }
 
         /// <summary>
@@ -116,14 +138,6 @@ namespace Editor.ViewModels
         }
 
         /// <summary>
-        /// Checks if the user is allowed to save the current map as...
-        /// </summary>
-        public bool SaveAsCommand_OnCanExecute()
-        {
-            return false;
-        }
-
-        /// <summary>
         /// Logic when the save as command gets invoked.
         /// </summary>
         public void SaveAsCommand_OnExecuted()
@@ -132,11 +146,22 @@ namespace Editor.ViewModels
         }
 
         /// <summary>
-        /// Checks if the user is allowed to exit the application.
+        /// Logic when the close command gets invoked.
         /// </summary>
-        public bool ExitCommand_OnCanExecute()
+        public void CloseCommand_OnExecuted()
         {
-            return true;
+            if (!World.IsSaved && AskToSave() == MessageBoxResult.Yes)
+            {
+                MessageBox.Show("Save here!");
+            }
+
+            World = null;
+            Assets.Clear();
+            AddAssetsCommand.RaiseCanExecuteChanged();
+            RemoveAssetsCommand.RaiseCanExecuteChanged();
+            SaveCommand.RaiseCanExecuteChanged();
+            SaveAsCommand.RaiseCanExecuteChanged();
+            CloseCommand.RaiseCanExecuteChanged();
         }
 
         /// <summary>
@@ -148,36 +173,18 @@ namespace Editor.ViewModels
         }
 
         /// <summary>
-        /// Checks if the user is allowed to add assets.
-        /// </summary>
-        public bool AddAssetsCommand_OnCanExecute()
-        {
-            return World != null;
-        }
-
-        /// <summary>
         /// Logic when the add assets command gets invoked.
         /// </summary>
         public void AddAssetsCommand_OnExecuted()
         {
-            var assetFiles = WindowsInteractions.BrowseFiles("Browse Assets", "Assets", new[] { "jpg", "png" }, true);
+            var assetFiles = WindowsUtilities.BrowseFiles("Browse Assets", "Assets", new[] { "jpg", "png" }, true);
 
-            if (assetFiles != null)
+            if (assetFiles == null) return;
+            var newFiles = assetFiles.FileNames.Where(af => Assets.All(a => new Asset(af).Location != a.Location));
+            foreach (var file in newFiles)
             {
-                var newFiles = assetFiles.FileNames.Where(af => Assets.All(a => new Asset(af).Location != a.Location));
-                foreach (var file in newFiles)
-                {
-                    Assets.Add(new Asset(file));
-                }
+                Assets.Add(new Asset(file));
             }
-        }
-
-        /// <summary>
-        /// Checks if the user is allowed to remove assets.
-        /// </summary>
-        public bool RemoveAssetsCommand_OnCanExecute()
-        {
-            return Assets.Any(a => a.IsSelected);
         }
 
         /// <summary>
@@ -185,6 +192,8 @@ namespace Editor.ViewModels
         /// </summary>
         public void RemoveAssetsCommand_OnExecuted()
         {
+            if (Confirm() == MessageBoxResult.No) return;
+
             foreach (var asset in Assets.ToList())
             {
                 if (asset.IsSelected)
@@ -197,11 +206,27 @@ namespace Editor.ViewModels
         }
 
         /// <summary>
-        /// Checks if the user is allowed to change the current map's settings.
+        /// Logic when the add layer command gets invoked.
         /// </summary>
-        public bool SettingsCommand_OnCanExecute()
+        public void AddLayerCommand_OnExecuted()
         {
-            return false;
+            // Todo: Add layer
+        }
+
+        /// <summary>
+        /// Checks if the user is allowed to remove layers.
+        /// </summary>
+        public bool RemoveLayerCommand_OnCanExecute()
+        {
+            return World != null && World.Layers.Any(l => l.IsSelected);
+        }
+
+        /// <summary>
+        /// Logic when the remove layers command gets invoked.
+        /// </summary>
+        public void RemoveLayerCommand_OnExecuted()
+        {
+            // Todo: Remove selected layers
         }
 
         /// <summary>
@@ -209,15 +234,13 @@ namespace Editor.ViewModels
         /// </summary>
         public void SettingsCommand_OnExecuted()
         {
-            // Todo: Change settings
+            SettingsWorld = MapUtilities.Clone(World);
+            new SettingsWindow(Application.Current.MainWindow).ShowDialog();
         }
 
-        /// <summary>
-        /// Checks if the user is allowed to see the credits.
-        /// </summary>
-        public bool AboutCommand_OnCanExecute()
+        public void ValidateSettingsCommand_OnExecuted()
         {
-            return true;
+            World = SettingsWorld;
         }
 
         /// <summary>
@@ -225,7 +248,30 @@ namespace Editor.ViewModels
         /// </summary>
         public void AboutCommand_OnExecuted()
         {
-            WindowsInteractions.ShowMessage("About", "Copyright 2017 GameModeler Inc.", MessageBoxButton.OK, MessageBoxImage.Information);
+            WindowsUtilities.ShowMessage("About", "Copyright 2017 GameModeler Inc.", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        /// <summary>
+        /// Sets the IsSelected property of the layers accordingly to their UI selected state.
+        /// </summary>
+        /// <param name="selectedItem">The selected layer.</param>
+        public void HandleLayerListSelection(object selectedItem)
+        {
+            var selectedlayer = selectedItem as Layer;
+
+            foreach (var layer in World.Layers)
+            {
+                if (layer == selectedlayer)
+                {
+                    if (layer != null) layer.IsSelected = true;
+                }
+                else
+                {
+                    layer.IsSelected = false;
+                }
+            }
+
+            RemoveLayerCommand.RaiseCanExecuteChanged();
         }
 
         /// <summary>
@@ -254,6 +300,17 @@ namespace Editor.ViewModels
             }
 
             RemoveAssetsCommand.RaiseCanExecuteChanged();
+        }
+
+        public MessageBoxResult Confirm()
+        {
+            return WindowsUtilities.ShowMessage(ConfigurationManager.AppSettings.Get("AppName"), "Are you sure?\nThere is no turning back!", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+        }
+
+
+        public MessageBoxResult AskToSave()
+        {
+            return WindowsUtilities.ShowMessage(ConfigurationManager.AppSettings.Get("AppName"), "Do you want to save your changes to the current map before closing it?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
         }
 
         #endregion

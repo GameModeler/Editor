@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:Editor.Views"
         xmlns:vm="clr-namespace:Editor.ViewModels"
         mc:Ignorable="d"
+        x:Name="RootWindow"
         WindowStartupLocation="CenterScreen"
-        Title="Map Editor" Width="1200" Height="650">
+        Width="1200" Height="650">
 
     <!-- Data Context -->
     <Window.DataContext>
@@ -20,10 +21,15 @@
         <KeyBinding Modifiers="Control" Key="O" Command="{Binding OpenCommand}" />
         <KeyBinding Modifiers="Control" Key="S" Command="{Binding SaveCommand}" />
         <KeyBinding Modifiers="Control+Shift" Key="S" Command="{Binding SaveAsCommand}" />
+        <KeyBinding Modifiers="Control" Key="W" Command="{Binding CloseCommand}" />
         <KeyBinding Modifiers="Alt" Key="F4" Command="{Binding ExitCommand}" />
-        <KeyBinding Modifiers="Control" Key="I" Command="{Binding AddAssetsCommand}" />
-        <KeyBinding Modifiers="Control" Key="D" Command="{Binding RemoveAssetsCommand}" />
+        <KeyBinding Modifiers="Alt" Key="I" Command="{Binding AddAssetsCommand}" />
+        <KeyBinding Modifiers="Alt" Key="D" Command="{Binding RemoveAssetsCommand}" />
+        <KeyBinding Modifiers="Control" Key="I" Command="{Binding AddLayerCommand}" />
+        <KeyBinding Modifiers="Control" Key="D" Command="{Binding RemoveLayerCommand}" />
         <KeyBinding Modifiers="Control" Key="U" Command="{Binding SettingsCommand}" />
+        <KeyBinding Modifiers="Control" Key="L" Command="{Binding ElementName=RootWindow, Path=ToggleLayersCommand}" />
+        <KeyBinding Modifiers="Control" Key="A" Command="{Binding ElementName=RootWindow, Path=ToggleAssetsCommand}" />
         <KeyBinding Key="F1" Command="{Binding AboutCommand}" />
     </Window.InputBindings>
 
@@ -33,16 +39,23 @@
         <!-- Main Menu -->
         <Menu x:Name="Menu" DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <MenuItem Header="File" Padding="5, 2">
-                <MenuItem Header="New" InputGestureText="CTRL+N" Command="{Binding NewCommand}" MouseEnter="NewCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
-                <MenuItem Header="Open" InputGestureText="CTRL+O" Command="{Binding OpenCommand}" MouseEnter="OpenCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
-                <MenuItem Header="Save" InputGestureText="CTRL+S" Command="{Binding SaveCommand}" MouseEnter="SaveCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
-                <MenuItem Header="Save As..." InputGestureText="CTRL+SHIFT+S" Command="{Binding SaveAsCommand}" MouseEnter="SaveAsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
-                <MenuItem Header="Exit" InputGestureText="ALT+F4" Command="{Binding ExitCommand}" MouseEnter="CloseCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="New" InputGestureText="CTRL + N" Command="{Binding NewCommand}" MouseEnter="NewCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Open" InputGestureText="CTRL + O" Command="{Binding OpenCommand}" MouseEnter="OpenCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Save" InputGestureText="CTRL + S" Command="{Binding SaveCommand}" MouseEnter="SaveCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Save As..." InputGestureText="CTRL + SHIFT + S" Command="{Binding SaveAsCommand}" MouseEnter="SaveAsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Close" InputGestureText="CTRL + W" Command="{Binding CloseCommand}" MouseEnter="CloseCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Exit" InputGestureText="ALT + F4" Command="{Binding ExitCommand}" MouseEnter="ExitCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
             </MenuItem>
             <MenuItem Header="Edit" Padding="5, 2">
-                <MenuItem Header="Add Assets..." InputGestureText="CTRL+I" Command="{Binding AddAssetsCommand}" MouseEnter="AddAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
-                <MenuItem Header="Remove Assets" InputGestureText="CTRL+D" Command="{Binding RemoveAssetsCommand}" MouseEnter="RemoveAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
-                <MenuItem Header="Map Settings" InputGestureText="CTRL+U" Command="{Binding SettingsCommand}" MouseEnter="MapSettingsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Add Assets..." InputGestureText="ALT + I" Command="{Binding AddAssetsCommand}" MouseEnter="AddAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Remove Assets" InputGestureText="ALT + D" Command="{Binding RemoveAssetsCommand}" MouseEnter="RemoveAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Add layer" InputGestureText="CTRL + I" Command="{Binding AddLayerCommand}" MouseEnter="AddLayerCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Remove layers" InputGestureText="CTRL + D" Command="{Binding RemoveLayerCommand}" MouseEnter="RemoveLayersCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Map Settings" InputGestureText="CTRL + U" Command="{Binding SettingsCommand}" MouseEnter="MapSettingsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+            </MenuItem>
+            <MenuItem Header="View" Padding="5, 2">
+                <MenuItem Header="Toggle Layers Panel" InputGestureText="CTRL + L" Command="{Binding ElementName=RootWindow, Path=ToggleLayersCommand}" MouseEnter="ToggleLayersCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
+                <MenuItem Header="Toggle Assets Panel" InputGestureText="CTRL + A" Command="{Binding ElementName=RootWindow, Path=ToggleAssetsCommand}" MouseEnter="ToggleAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
             </MenuItem>
             <MenuItem Header="Help" Padding="5, 2">
                 <MenuItem Header="About" InputGestureText="F1" Command="{Binding AboutCommand}" MouseEnter="AboutCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" />
@@ -55,9 +68,42 @@
                 <TextBlock x:Name="StatusBar" Text="Ready" Padding="5, 2" />
             </StatusBarItem>
         </StatusBar>
+        
+        <!-- Layer List Container -->
+        <Grid x:Name="LayerListPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="10, 10, 0, 10">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            
+            <!-- Layer List Title -->
+            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Layers" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Stretch" FontSize="20" Background="Honeydew" Padding="15, 5" />
+            
+            <!-- Layer List -->
+            <ListView x:Name="LayerList" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ItemsSource="{Binding World.Layers}" SelectionMode="Single" BorderThickness="0" SelectionChanged="LayerList_OnSelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="2, 5">
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Add / Remove Buttons -->
+            <Button Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" MinWidth="80" Height="50" Content="Remove" Command="{Binding RemoveLayerCommand}" MouseEnter="RemoveLayersCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" Margin="0, 10, 5, 0" />
+            <Button Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="80" Height="50" Content="Add" Command="{Binding AddLayerCommand}" MouseEnter="AddLayerCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" Margin="5, 10, 0, 0" />
+            
+        </Grid>
 
         <!-- Asset List Container -->
-        <Grid DockPanel.Dock="Right" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="0, 10, 10, 10">
+        <Grid x:Name="AssetListPanel" DockPanel.Dock="Right" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="0, 10, 10, 10">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -77,7 +123,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="2, 5">
-                            <Image HorizontalAlignment="Left" VerticalAlignment="Center" Width="50" Height="50">
+                            <Image HorizontalAlignment="Left" VerticalAlignment="Center" Width="80">
                                 <Image.Source>
                                     <BitmapImage UriSource="{Binding Location}" />
                                 </Image.Source>
@@ -89,13 +135,13 @@
             </ListView>
 
             <!-- Add / Remove Buttons -->
-            <Button Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" MinWidth="80" Height="50" Content="Remove" Command="{Binding RemoveAssetsCommand}" Margin="0, 10, 5, 0" />
-            <Button Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="80" Height="50" Content="Add" Command="{Binding AddAssetsCommand}" Margin="5, 10, 0, 0" />
+            <Button Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" MinWidth="80" Height="50" Content="Remove" Command="{Binding RemoveAssetsCommand}" MouseEnter="RemoveAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" Margin="0, 10, 5, 0" />
+            <Button Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" MinWidth="80" Height="50" Content="Add" Command="{Binding AddAssetsCommand}" MouseEnter="AddAssetsCommand_OnMouseEnter" MouseLeave="Command_OnMouseLeave" Margin="5, 10, 0, 0" />
 
         </Grid>
 
         <!-- Map Container -->
-        <Grid Margin="10" Background="Azure">
+        <Grid Margin="10">
 
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -104,6 +150,9 @@
 
             <!-- Map Title -->
             <TextBlock x:Name="MapName" Grid.Row="0" Text="{Binding World.Name, FallbackValue='Create or open a map using the File menu'}" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="20" Background="Honeydew" Padding="15, 5" />
+            
+            <!-- Map -->
+            
 
         </Grid>
 
