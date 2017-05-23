@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using Editor.ViewModels;
+using Map.Models;
 
 namespace Editor.Views
 {
@@ -12,20 +14,25 @@ namespace Editor.Views
         /// <summary>
         /// Setting window initialization.
         /// </summary>
-        public SettingsWindow(Window owner)
+        public SettingsWindow()
         {
+            Owner = Application.Current.MainWindow;
+            DataContext = new SettingsViewModel();
             InitializeComponent();
-            Owner = owner;
-            DataContext = Application.Current.MainWindow.DataContext;
+        }
+
+        public SettingsWindow(World world) : this()
+        {
+            DataContext = new SettingsViewModel(world);
         }
 
         #endregion
 
         #region Methods
 
-        private void BottomButton_OnClick(object sender, RoutedEventArgs e)
+        private void ApplyButton_OnClick(object sender, RoutedEventArgs e)
         {
-            Close();
+            DialogResult = true;
         }
 
         #endregion

@@ -26,11 +26,10 @@ namespace Editor.Views
         /// </summary>
         public MainWindow()
         {
-            InitializeComponent();
-            Title = ConfigurationManager.AppSettings.Get("AppName");
-
             ToggleLayersCommand = new DelegateCommand(ToggleLayersCommand_OnExecuted, () => true);
             ToggleAssetsCommand = new DelegateCommand(ToggleAssetsCommand_OnExecuted, () => true);
+            Title = ConfigurationManager.AppSettings.Get("AppName");
+            InitializeComponent();
         }
 
         #endregion
@@ -204,6 +203,7 @@ namespace Editor.Views
         /// <param name="e">The event arguments.</param>
         private void LayerList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (e.AddedItems.Count <= 0) return;
             var mainViewModel = DataContext as MainViewModel;
             mainViewModel?.HandleLayerListSelection(e.AddedItems[0]);
         }

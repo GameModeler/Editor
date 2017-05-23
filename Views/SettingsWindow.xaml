@@ -4,12 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Editor.Views"
+        xmlns:vm="clr-namespace:Editor.ViewModels"
         mc:Ignorable="d"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
-        Title="Map Settings" Width="500" Height="400">
+        Title="Map Settings" Width="500" SizeToContent="Height">
 
-    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -35,9 +36,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Map Title -->
+                <!-- Map Name -->
                 <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Name" />
-                <TextBox x:Name="MapTitle" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.Name}" />
+                <TextBox x:Name="MapName" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding World.Name}" />
 
                 <!-- Map Background -->
                 <Label Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Background" />
@@ -46,19 +47,19 @@
 
                 <!-- Map Width -->
                 <Label Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Width" />
-                <TextBox x:Name="MapWidth" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.Width}" />
+                <TextBox x:Name="MapWidth" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding World.Width}" />
 
                 <!-- Map Height -->
                 <Label Grid.Row="3" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Height" />
-                <TextBox x:Name="MapHeight" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.Height}" />
+                <TextBox x:Name="MapHeight" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding World.Height}" />
 
                 <!-- Cell Width -->
                 <Label Grid.Row="4" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Cell Width" />
-                <TextBox x:Name="CellWidth" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.CellWidth}" />
+                <TextBox x:Name="CellWidth" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding World.CellWidth}" />
 
                 <!-- Cell Height -->
                 <Label Grid.Row="5" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Cell Height" />
-                <TextBox x:Name="CellHeight" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding SettingsWorld.CellHeight}" />
+                <TextBox x:Name="CellHeight" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10, 8" Padding="5" Text="{Binding World.CellHeight}" />
 
             </Grid>
 
@@ -70,7 +71,7 @@
             <Button Content="Cancel" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0, 0, 5, 0" Padding="15, 5" IsCancel="True" />
 
             <!-- Apply Button -->
-            <Button Content="OK" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5, 0, 0, 0" Padding="15, 5" IsDefault="True" Command="{Binding ValidateSettingsCommand}" Click="BottomButton_OnClick" />
+            <Button Content="OK" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5, 0, 0, 0" Padding="15, 5" IsDefault="True" Click="ApplyButton_OnClick" />
 
         </StackPanel>
 

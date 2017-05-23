@@ -94,6 +94,11 @@
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
+                <!--<ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <EventSetter Event="MouseDoubleClick" Handler="{Binding EditLayerCommand}" />
+                    </Style>
+                </ListView.ItemContainerStyle>-->
             </ListView>
 
             <!-- Add / Remove Buttons -->
@@ -152,7 +157,9 @@
             <TextBlock x:Name="MapName" Grid.Row="0" Text="{Binding World.Name, FallbackValue='Create or open a map using the File menu'}" VerticalAlignment="Center" HorizontalAlignment="Stretch" TextAlignment="Center" FontSize="20" Background="Honeydew" Padding="15, 5" />
             
             <!-- Map -->
-            
+            <ScrollViewer Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+
+            </ScrollViewer>
 
         </Grid>
 
